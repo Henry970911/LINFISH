@@ -1,0 +1,15 @@
+import { CurrencyPipe } from '@angular/common';
+import { Component, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { StoreService } from '../../core/services/store.service';
+
+@Component({
+  selector: 'app-admin-dashboard-page',
+  standalone: true,
+  imports: [CurrencyPipe, RouterLink],
+  template: `<div class="admin-page-head"><div><span>2026 年 11 月 18 日，星期三</span><h1>營運儀表板</h1><p>掌握今天的訂單、庫存與待辦事項。</p></div><a class="admin-primary-btn" routerLink="/admin/products/new">＋ 新增商品</a></div><div class="admin-stat-grid"><div><span>今日訂單</span><b>12</b><small class="up">↑ 20% 較昨日</small><i>▤</i></div><div><span>今日營業額</span><b>NT$18,420</b><small class="up">↑ 8.2% 較昨日</small><i>＄</i></div><div><span>待處理訂單</span><b>7</b><small>其中 3 筆等待確認</small><i>◷</i></div><div><span>低庫存商品</span><b>4</b><small class="warning">需要補貨</small><i>!</i></div></div><div class="admin-dashboard-grid"><section class="admin-card admin-card--wide"><div class="admin-card-head"><div><h2>營業額趨勢</h2><p>近 7 日訂單收入</p></div><select><option>最近 7 天</option><option>最近 30 天</option></select></div><div class="chart"><div class="chart-y"><span>20k</span><span>15k</span><span>10k</span><span>5k</span><span>0</span></div><div class="bars">@for (value of [48,64,42,78,58,88,72]; track $index) { <i [style.height.%]="value"><b>{{ ['四','五','六','日','一','二','三'][$index] }}</b></i> }</div></div></section><section class="admin-card"><div class="admin-card-head"><div><h2>待辦事項</h2><p>需要優先處理</p></div></div><div class="todo-list"><a routerLink="/admin/orders"><span class="todo-icon todo-icon--coral">▤</span><p><b>3 筆新訂單待確認</b><small>包含 2 筆活體訂單</small></p><em>→</em></a><a routerLink="/admin/products"><span class="todo-icon todo-icon--amber">!</span><p><b>4 項商品庫存偏低</b><small>建議本週安排補貨</small></p><em>→</em></a><a routerLink="/admin/content"><span class="todo-icon todo-icon--blue">◫</span><p><b>首頁 Banner 即將到期</b><small>活動至 11/20 結束</small></p><em>→</em></a></div></section><section class="admin-card admin-card--wide"><div class="admin-card-head"><div><h2>最新訂單</h2><p>今天收到的訂單</p></div><a routerLink="/admin/orders">查看全部 →</a></div><div class="admin-order-table"><div class="admin-table-row admin-table-head"><span>訂單</span><span>顧客</span><span>狀態</span><span>金額</span></div>@for (order of store.orders(); track order.id) { <a class="admin-table-row" [routerLink]="['/admin/orders', order.id]"><b>{{ order.id }}</b><span>林小姐</span><span class="status" [class.status--processing]="order.status === '處理中'">{{ order.status }}</span><strong>{{ order.total | currency:'TWD':'NT$':'1.0-0' }}</strong></a> }</div></section><section class="admin-card"><div class="admin-card-head"><div><h2>熱銷商品</h2><p>本月銷售排行</p></div></div><div class="ranking">@for (product of store.featuredProducts().slice(0, 4); track product.id; let index = $index) { <div><b>0{{ index + 1 }}</b><span [style.background]="product.gradient">{{ product.emoji }}</span><p><strong>{{ product.name }}</strong><small>售出 {{ 32 - index * 5 }} 件</small></p></div> }</div></section></div>`,
+})
+export class AdminDashboardPageComponent {
+  readonly store = inject(StoreService);
+}
+
