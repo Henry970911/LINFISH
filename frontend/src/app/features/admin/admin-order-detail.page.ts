@@ -5,7 +5,98 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
   selector: 'app-admin-order-detail-page',
   standalone: true,
   imports: [RouterLink],
-  template: `<div class="admin-page-head admin-editor-head"><div><a routerLink="/admin/orders">← 返回訂單列表</a><h1>訂單 {{ orderId }}</h1><p>建立於 2026/11/18 14:32 · 來源：網站</p></div><div><button class="admin-secondary-btn">列印訂單</button><button class="admin-primary-btn">更新狀態</button></div></div><div class="admin-detail-grid"><main><section class="admin-card editor-card"><div class="admin-card-head"><div><h2>商品明細</h2><p>共 3 件商品</p></div><span class="status status--processing">處理中</span></div><div class="admin-line-item"><i>🐠</i><p><b>黃金檸檬琴尾茉莉</b><small>SKU LF-0002 · 數量 2</small></p><strong>NT$360</strong></div><div class="admin-line-item"><i>🌿</i><p><b>迷你小榕沉木組</b><small>SKU LF-0005 · 數量 1</small></p><strong>NT$260</strong></div><div class="admin-totals"><span>商品小計 <b>NT$620</b></span><span>運費 <b>NT$120</b></span><span>訂單總額 <strong>NT$740</strong></span></div></section><section class="admin-card editor-card"><h2>處理紀錄</h2><div class="timeline"><div class="done"><i>✓</i><p><b>訂單成立</b><small>2026/11/18 14:32 · 系統</small></p></div><div class="done"><i>✓</i><p><b>已標記商品確認中</b><small>2026/11/18 15:10 · 林管理員</small></p></div><div><i></i><p><b>新增內部備註或更新狀態</b><textarea rows="3" placeholder="此內容不會顯示給顧客"></textarea><button class="admin-secondary-btn">新增紀錄</button></p></div></div></section></main><aside><section class="admin-card editor-card"><h2>訂單狀態</h2><label>處理進度<select><option>處理中</option><option>準備出貨</option><option>已出貨</option><option>已完成</option></select></label><label>付款狀態<select><option>待付款</option><option>已付款</option><option>已退款</option></select></label><button class="admin-primary-btn admin-full">儲存狀態</button></section><section class="admin-card editor-card"><h2>顧客與收件資料</h2><p><b>林小姐</b><br />demo&#64;linfish.tw<br />0912 345 678</p><hr /><p>台北市中山區<br />水族路 18 號 3 樓</p><a href="#">查看會員資料 →</a></section><section class="admin-card editor-card"><h2>配送資訊</h2><p>宅配到府<br /><small>尚未建立託運單</small></p><button class="admin-secondary-btn admin-full">建立出貨資料</button></section></aside></div>`,
+  template: `<div class="admin-page-head admin-editor-head">
+      <div>
+        <a routerLink="/admin/orders">← 返回訂單列表</a>
+        <h1>訂單 {{ orderId }}</h1>
+        <p>建立於 2026/11/18 14:32 · 來源：網站</p>
+      </div>
+      <div>
+        <button class="admin-secondary-btn">列印訂單</button
+        ><button class="admin-primary-btn">更新狀態</button>
+      </div>
+    </div>
+    <div class="admin-detail-grid">
+      <main>
+        <section class="admin-card editor-card">
+          <div class="admin-card-head">
+            <div>
+              <h2>商品明細</h2>
+              <p>共 3 件商品</p>
+            </div>
+            <span class="status status--processing">處理中</span>
+          </div>
+          <div class="admin-line-item">
+            <i>🐠</i>
+            <p><b>黃金檸檬琴尾茉莉</b><small>SKU LF-0002 · 數量 2</small></p>
+            <strong>NT$360</strong>
+          </div>
+          <div class="admin-line-item">
+            <i>🌿</i>
+            <p><b>迷你小榕沉木組</b><small>SKU LF-0005 · 數量 1</small></p>
+            <strong>NT$260</strong>
+          </div>
+          <div class="admin-totals">
+            <span>商品小計 <b>NT$620</b></span
+            ><span>運費 <b>NT$120</b></span
+            ><span>訂單總額 <strong>NT$740</strong></span>
+          </div>
+        </section>
+        <section class="admin-card editor-card">
+          <h2>處理紀錄</h2>
+          <div class="timeline">
+            <div class="done">
+              <i>✓</i>
+              <p><b>訂單成立</b><small>2026/11/18 14:32 · 系統</small></p>
+            </div>
+            <div class="done">
+              <i>✓</i>
+              <p><b>已標記商品確認中</b><small>2026/11/18 15:10 · 林管理員</small></p>
+            </div>
+            <div>
+              <i></i>
+              <p>
+                <b>新增內部備註或更新狀態</b
+                ><textarea rows="3" placeholder="此內容不會顯示給顧客"></textarea
+                ><button class="admin-secondary-btn">新增紀錄</button>
+              </p>
+            </div>
+          </div>
+        </section>
+      </main>
+      <aside>
+        <section class="admin-card editor-card">
+          <h2>訂單狀態</h2>
+          <label
+            >處理進度<select>
+              <option>處理中</option>
+              <option>準備出貨</option>
+              <option>已出貨</option>
+              <option>已完成</option>
+            </select></label
+          ><label
+            >付款狀態<select>
+              <option>待付款</option>
+              <option>已付款</option>
+              <option>已退款</option>
+            </select></label
+          ><button class="admin-primary-btn admin-full">儲存狀態</button>
+        </section>
+        <section class="admin-card editor-card">
+          <h2>顧客與收件資料</h2>
+          <p><b>林小姐</b><br />demo&#64;linfish.tw<br />0912 345 678</p>
+          <hr />
+          <p>台北市中山區<br />水族路 18 號 3 樓</p>
+          <a href="#">查看會員資料 →</a>
+        </section>
+        <section class="admin-card editor-card">
+          <h2>配送資訊</h2>
+          <p>宅配到府<br /><small>尚未建立託運單</small></p>
+          <button class="admin-secondary-btn admin-full">建立出貨資料</button>
+        </section>
+      </aside>
+    </div>`,
 })
-export class AdminOrderDetailPageComponent { readonly orderId = inject(ActivatedRoute).snapshot.paramMap.get('id'); }
-
+export class AdminOrderDetailPageComponent {
+  readonly orderId = inject(ActivatedRoute).snapshot.paramMap.get('id');
+}

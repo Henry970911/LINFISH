@@ -42,6 +42,14 @@ export interface Product {
   stock: number;
   featured?: boolean;
   isNew?: boolean;
+  image?: string | null;
+  images?: string[];
+  videoUrl?: string | null;
+  variationName?: string | null;
+  inventoryUnit?: string;
+  skuId?: number;
+  skuName?: string;
+  skus?: { id: number; skuNo: string; skuName: string; price: number | null; stockQty: number; originalPrice: number | null; imageKey: string | null; inventoryId?: number; unitsPerSale?: number; attributes?: Record<string,string|number> }[];
 }
 
 export interface CartItem {
@@ -56,4 +64,3 @@ export interface OrderSummary {
   total: number;
   itemCount: number;
 }
-

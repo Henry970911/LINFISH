@@ -1,0 +1,13 @@
+@LinfishAppcation_HostAddress = http://localhost:5190
+
+@accessToken = 在這裡貼上 POST /api/auth/login 取得的 accessToken
+
+GET {{LinfishAppcation_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+
+GET {{LinfishAppcation_HostAddress}}/api/members/me
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+

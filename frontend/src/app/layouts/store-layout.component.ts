@@ -11,8 +11,9 @@ import { SiteHeaderComponent } from '../shared/components/site-header.component'
     <app-site-header />
     <main><router-outlet /></main>
     <app-site-footer />
-    <a class="floating-line" routerLink="/contact" aria-label="LINE 客服"><b>LINE</b><span>有問題？問我們</span></a>
+    <a class="floating-line" routerLink="/contact" aria-label="LINE 客服"
+      ><b>LINE</b><span>有問題？問我們</span></a
+    >
   `,
 })
 export class StoreLayoutComponent {}
-

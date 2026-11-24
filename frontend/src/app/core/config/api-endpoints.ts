@@ -6,4 +6,3 @@ export const API_ENDPOINTS = {
   orders: `${environment.apiBaseUrl}/orders`,
   profile: `${environment.apiBaseUrl}/profile`,
 } as const;
-

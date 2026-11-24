@@ -1,0 +1,27 @@
+# .NET build output
+**/bin/
+**/obj/
+**/.vs/
+*.user
+*.suo
+
+# Angular / Node build output
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+
+# Editors and operating systems
+**/.vscode/
+.DS_Store
+Thumbs.db
+
+# Local secrets and environment overrides
+secrets.json
+*.local.json
+.env
+.env.*
+
+# Local test data and database backups must not be published.
+.codex-*/
+*.dump
+*.backup

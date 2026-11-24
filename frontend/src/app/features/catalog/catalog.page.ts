@@ -11,8 +11,14 @@ import { ProductCardComponent } from '../../shared/components/product-card.compo
   template: `
     <section class="page-hero page-hero--catalog">
       <div class="container">
-        <div><span class="eyebrow">ONLINE SHOP</span><h1>{{ pageTitle() }}</h1><p>{{ pageDescription() }}</p></div>
-        <span class="page-hero__number">{{ filteredProducts().length.toString().padStart(2, '0') }}</span>
+        <div>
+          <span class="eyebrow">ONLINE SHOP</span>
+          <h1>{{ pageTitle() }}</h1>
+          <p>{{ pageDescription() }}</p>
+        </div>
+        <span class="page-hero__number">{{
+          filteredProducts().length.toString().padStart(2, '0')
+        }}</span>
       </div>
     </section>
 
@@ -30,7 +36,10 @@ import { ProductCardComponent } from '../../shared/components/product-card.compo
           </button>
 
           @for (group of store.catalogFilterGroups(); track group.slug) {
-            <section class="filter-group" [class.filter-group--open]="expandedGroup() === group.slug">
+            <section
+              class="filter-group"
+              [class.filter-group--open]="expandedGroup() === group.slug"
+            >
               <button
                 class="filter-group__trigger"
                 type="button"
@@ -46,7 +55,9 @@ import { ProductCardComponent } from '../../shared/components/product-card.compo
                 <div class="filter-options" [id]="'filter-options-' + group.slug">
                   <button
                     class="filter-option"
-                    [class.active]="selectedGroup() === group.slug && selectedSubcategory() === 'all'"
+                    [class.active]="
+                      selectedGroup() === group.slug && selectedSubcategory() === 'all'
+                    "
                     type="button"
                     (click)="selectSubcategory(group.slug, 'all')"
                   >
@@ -57,7 +68,9 @@ import { ProductCardComponent } from '../../shared/components/product-card.compo
                   @for (option of group.options; track option.slug) {
                     <button
                       class="filter-option"
-                      [class.active]="selectedGroup() === group.slug && selectedSubcategory() === option.slug"
+                      [class.active]="
+                        selectedGroup() === group.slug && selectedSubcategory() === option.slug
+                      "
                       type="button"
                       (click)="selectSubcategory(group.slug, option.slug)"
                     >
@@ -72,7 +85,8 @@ import { ProductCardComponent } from '../../shared/components/product-card.compo
         </nav>
 
         <div class="sidebar-help">
-          <span>？</span><h3>不知道怎麼選？</h3>
+          <span>？</span>
+          <h3>不知道怎麼選？</h3>
           <p>告訴我們魚缸尺寸與現有魚種，客服會協助建議。</p>
           <a routerLink="/contact">詢問客服 →</a>
         </div>
@@ -80,16 +94,35 @@ import { ProductCardComponent } from '../../shared/components/product-card.compo
 
       <section class="catalog-main">
         <div class="catalog-toolbar">
-          <p>顯示 <b>{{ filteredProducts().length }}</b> 件商品 @if (keyword()) { · 搜尋「{{ keyword() }}」 }</p>
-          <label>排序<select><option>最新上架</option><option>熱門程度</option><option>價格低至高</option><option>價格高至低</option></select></label>
+          <p>
+            顯示 <b>{{ filteredProducts().length }}</b> 件商品
+            @if (keyword()) {
+              · 搜尋「{{ keyword() }}」
+            }
+          </p>
+          <label
+            >排序<select>
+              <option>最新上架</option>
+              <option>熱門程度</option>
+              <option>價格低至高</option>
+              <option>價格高至低</option>
+            </select></label
+          >
         </div>
 
         @if (filteredProducts().length) {
           <div class="product-grid product-grid--catalog">
-            @for (product of filteredProducts(); track product.id) { <app-product-card [product]="product" /> }
+            @for (product of filteredProducts(); track product.id) {
+              <app-product-card [product]="product" />
+            }
           </div>
         } @else {
-          <div class="empty-state"><span>⌕</span><h2>這個分類目前沒有展示商品</h2><p>分類結構已建立，之後可從管理後台加入商品。</p><button class="btn btn--dark" type="button" (click)="reset()">查看全部商品</button></div>
+          <div class="empty-state">
+            <span>⌕</span>
+            <h2>這個分類目前沒有展示商品</h2>
+            <p>分類結構已建立，之後可從管理後台加入商品。</p>
+            <button class="btn btn--dark" type="button" (click)="reset()">查看全部商品</button>
+          </div>
         }
       </section>
     </div>
@@ -110,9 +143,16 @@ export class CatalogPageComponent {
   readonly filteredProducts = computed(() => {
     const term = this.keyword().toLowerCase();
     return this.store.products().filter((product) => {
-      const matchesGroup = this.selectedGroup() === null || product.groupSlug === this.selectedGroup();
-      const matchesSubcategory = this.selectedSubcategory() === 'all' || product.subcategorySlug === this.selectedSubcategory();
-      const matchesKeyword = !term || `${product.name} ${product.scientificName ?? ''} ${product.description}`.toLowerCase().includes(term);
+      const matchesGroup =
+        this.selectedGroup() === null || product.groupSlug === this.selectedGroup();
+      const matchesSubcategory =
+        this.selectedSubcategory() === 'all' ||
+        product.subcategorySlug === this.selectedSubcategory();
+      const matchesKeyword =
+        !term ||
+        `${product.name} ${product.scientificName ?? ''} ${product.description}`
+          .toLowerCase()
+          .includes(term);
       const matchesView = !this.newOnly() || product.isNew;
       return matchesGroup && matchesSubcategory && matchesKeyword && matchesView;
     });
@@ -120,14 +160,20 @@ export class CatalogPageComponent {
 
   readonly pageTitle = computed(() => {
     if (this.newOnly()) return '本週新品';
-    const group = this.store.catalogFilterGroups().find((item) => item.slug === this.selectedGroup());
+    const group = this.store
+      .catalogFilterGroups()
+      .find((item) => item.slug === this.selectedGroup());
     if (!group) return '全部商品';
     if (this.selectedSubcategory() === 'all') return group.name;
-    return group.options.find((item) => item.slug === this.selectedSubcategory())?.name ?? group.name;
+    return (
+      group.options.find((item) => item.slug === this.selectedSubcategory())?.name ?? group.name
+    );
   });
 
   readonly pageDescription = computed(() => {
-    const group = this.store.catalogFilterGroups().find((item) => item.slug === this.selectedGroup());
+    const group = this.store
+      .catalogFilterGroups()
+      .find((item) => item.slug === this.selectedGroup());
     return group?.description ?? '挑選適合你魚缸的生命與風景。';
   });
 
@@ -182,7 +228,10 @@ export class CatalogPageComponent {
     });
   }
 
-  private mapLegacyCategory(category: string | null): { group: string | null; subcategory: string } {
+  private mapLegacyCategory(category: string | null): {
+    group: string | null;
+    subcategory: string;
+  } {
     const mapping: Record<string, { group: string; subcategory: string }> = {
       'tropical-fish': { group: 'fish', subcategory: 'all' },
       shrimp: { group: 'fish', subcategory: 'bottom-dwellers' },
