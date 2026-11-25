@@ -1,0 +1,80 @@
+.account-error {
+  color: #9a3026;
+}
+
+input[readonly] {
+  background: #f6f4ef;
+  cursor: default;
+}
+/* 訂單表格在窄螢幕可橫向捲動，避免截斷訂單編號。 */
+.order-table-wrap {
+  overflow-x: auto;
+}
+.order-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 13px;
+}
+.order-table th,
+.order-table td {
+  padding: 16px 12px;
+  border-bottom: 1px solid #e3e9e6;
+  white-space: nowrap;
+}
+.order-table th {
+  color: #82918c;
+  font-size: 11px;
+  font-weight: 600;
+}
+.order-table td:first-child {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  min-width: 180px;
+}
+.order-table a,
+.recent-order a,
+.panel-head > a {
+  color: var(--deep);
+  font-weight: 700;
+}
+.order-table td:last-child {
+  text-align: right;
+}
+.order-status {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: #fbe5dc;
+  color: #9b5a49;
+  font-size: 11px;
+  white-space: nowrap;
+}
+.order-status.is-cancelled {
+  background: #eef1ef;
+  color: #6d7873;
+}
+.recent-order {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 0;
+  border-top: 1px solid #e3e9e6;
+  font-size: 13px;
+}
+.recent-order small {
+  color: #82918c;
+  margin-right: 8px;
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

@@ -1,0 +1,28 @@
+.after-case {
+  border-top: 1px solid #e3ebe7;
+  padding: 14px 0;
+}
+.after-case small {
+  color: #728078;
+}
+.after-case button {
+  margin: 6px;
+}
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+}
+.stats div {
+  display: grid;
+  gap: 7px;
+  padding: 16px;
+  border-radius: 10px;
+  background: #f2f7f4;
+}
+.stats small {
+  color: #718078;
+}
+.stats b {
+  font-size: 24px;
+}

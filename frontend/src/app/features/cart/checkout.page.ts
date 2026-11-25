@@ -13,7 +13,7 @@ import { StoreService } from '../../core/services/store.service';
  <label>收件人<input name="name" [(ngModel)]="form.name" maxlength="100" required /></label>
  <label>電話<input name="phone" [(ngModel)]="form.phone" maxlength="30" required /></label>
  <label class="full">收件地址<input name="address" [(ngModel)]="form.address" maxlength="500" required /></label>
- </div><p>訂單成立後由管理員處理；付款方式另行確認。</p></section></div>
+ </div><p>訂單成立後由管理員處理；付款方式另行確認。</p><p>宅配提醒：開箱請全程錄影，如有問題請於收到貨一小時內聯繫官方 LINE 客服。<a routerLink="/info/shipping" target="_blank">查看完整宅配須知 →</a></p></section></div>
  <aside class="order-summary"><h2>訂單摘要</h2>@for(item of store.cart();track item.product.skuId){<p>{{item.product.name}} · {{item.product.skuName}} × {{item.quantity}}：{{item.product.price * item.quantity | currency:'TWD':'NT$'}}</p>}@if(quote();as q){<label>配送方式<select name="shipping" [(ngModel)]="shippingId" (ngModelChange)="refreshQuote()">@for(option of q.options;track option.id){<option [ngValue]="option.id">{{option.name}}</option>}</select></label><p>商品小計：{{q.subtotal | currency:'TWD':'NT$'}}</p><p>稅額合計（含已包含於售價的稅額）：{{q.taxAmount | currency:'TWD':'NT$'}}</p><p>額外加計稅額：{{q.additionalTax | currency:'TWD':'NT$'}}</p><p>運費：{{q.shippingFee | currency:'TWD':'NT$'}}</p><p>合計：{{q.total | currency:'TWD':'NT$'}}</p>}<p>送出時將再次確認商品價格、稅別、物流與庫存。</p><p role="alert">{{error()}}</p><button class="btn btn--coral btn--block" type="submit" [disabled]="busy() || quoting() || !quote() || formRef.invalid || !store.cart().length">{{busy() ? '送出中…' : '確認成立訂單'}}</button><a routerLink="/cart">返回購物車</a></aside>
 </form></section>`})
 export class CheckoutPageComponent {

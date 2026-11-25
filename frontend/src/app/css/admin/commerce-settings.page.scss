@@ -1,0 +1,19 @@
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #e6ece9;
+  padding: 14px 0;
+}
+.setting-row p {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+}
+.setting-row small {
+  color: #718078;
+}
+.editor-card input[type='checkbox'] {
+  width: auto;
+  min-height: 0;
+}

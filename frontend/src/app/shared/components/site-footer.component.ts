@@ -27,11 +27,11 @@ import { RouterLink } from '@angular/router';
       <div class="container footer-grid">
         <div class="footer-brand">
           <a class="brand brand--footer" routerLink="/"
-            ><span class="brand__mark">L</span
+            ><img class="brand__mark" src="images/linfish-logo.jpg" alt="" width="42" height="42"
             ><span><b>魚軒水族量販店</b><small>讓水族生活更簡單</small></span></a
           >
           <p>以清楚的飼養資訊、穩定的個體狀態與細心包裝，陪你建立喜歡的水中風景。</p>
-          <div class="social-row"><span>LINE</span><span>FB</span><span>IG</span></div>
+          <div class="social-row"><a href="https://lin.ee/lXZexVN" target="_blank" rel="noopener noreferrer" aria-label="官方 LINE">LINE</a><a href="https://www.facebook.com/profile.php?id=61561628631885&locale=zh_TW" target="_blank" rel="noopener noreferrer" aria-label="Facebook">FB</a><a href="https://www.instagram.com/yuxuan.aquarium/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">IG</a></div>
         </div>
         <div>
           <h3>開始逛逛</h3>
@@ -52,7 +52,8 @@ import { RouterLink } from '@angular/router';
           <h3>宅配時間</h3>
           <p>週一至週五<br />六日訂單順延到下週一配送</p>
           <p>颱風天、連假停止宅配服務</p>
-          <a class="line-link" routerLink="/contact">加入 LINE 客服 →</a>
+          <a class="line-link" href="https://lin.ee/lXZexVN" target="_blank" rel="noopener noreferrer">加入 LINE 客服 →</a>
+          <a class="line-link" href="https://line.me/ti/g2/Wxj8zypAWdvqmIbEoGOrczQ8_e3omN9UUdCuUQ?utm_source=invitation&utm_medium=link_copy&utm_campaign=default" target="_blank" rel="noopener noreferrer">加入 LINE 社群，掌握活動資訊 →</a>
         </div>
       </div>
       <div></div>

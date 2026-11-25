@@ -13,8 +13,8 @@ import { FormsModule } from '@angular/forms';
         <p>選魚、設備、訂單或到貨狀況，都可以把目前的資訊告訴我們。</p>
         <div class="contact-method">
           <span>LINE</span>
-          <div><b>加入官方 LINE</b><small>&#64;linfish-demo</small></div>
-          <a href="#contact-form">開始對話 →</a>
+          <div><b>加入官方 LINE</b><small>線上客服與諮詢</small></div>
+          <a href="https://lin.ee/lXZexVN" target="_blank" rel="noopener noreferrer">開始對話 →</a>
         </div>
         <div class="contact-method">
           <span>MAIL</span>

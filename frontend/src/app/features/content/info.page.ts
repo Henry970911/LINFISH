@@ -1,10 +1,11 @@
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { DeliveryNoticeComponent } from '../../shared/components/delivery-notice.component';
 
 @Component({
   selector: 'app-info-page',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, DeliveryNoticeComponent],
   template: `<section class="page-hero page-hero--info">
       <div class="container">
         <div>
@@ -57,6 +58,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
               <li><b>六日訂單</b><span>順延到下週一配送。</span></li>
               <li><b>暫停宅配</b><span>颱風天、連假停止宅配服務。</span></li>
             </ol>
+            <app-delivery-notice />
             <h3>付款方式</h3>
             <p>第一階段可提供 ATM 虛擬帳號；正式串接後再加入信用卡與第三方支付。</p>
           } @else if (kind === 'returns') {
@@ -64,9 +66,10 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
             <p>收到包裹後請先確認外箱與袋內狀況，活體商品請勿立即拆袋入缸。</p>
             <ol>
               <li><b>拍攝開箱</b><span>從未拆封外箱開始連續錄影。</span></li>
-              <li><b>聯絡客服</b><span>發現異常請在到貨後兩小時內提供影片與訂單編號。</span></li>
+              <li><b>聯絡客服</b><span>發現異常請在收到貨一小時內聯絡官方 LINE 客服，並提供影片與訂單編號。</span></li>
               <li><b>保持原狀</b><span>等待客服協助判斷，再進行後續處理。</span></li>
             </ol>
+            <app-delivery-notice />
             <div class="notice-box">
               活體並非一般商品，實際退換貨規範需依營業地區法規與物流條件制定。
             </div>

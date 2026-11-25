@@ -12,13 +12,21 @@ import { AuthService } from '../../core/services/auth.service';
     <section class="auth-page">
       <div class="auth-visual">
         <a class="brand brand--light" routerLink="/">
-          <span class="brand__mark">L</span>
+          <img class="brand__mark" src="images/linfish-logo.jpg" alt="" width="42" height="42">
           <span><b>LINFISH</b><small>讓水族生活更簡單</small></span>
         </a>
-        <div>
-          <span class="eyebrow eyebrow--light">MEMBER'S WATER</span>
-          <h1>每一次選擇，<br />都更了解你的魚缸。</h1>
-          <p>收藏喜歡的魚種、查看會員價格，並保留每一筆照護與訂單紀錄。</p>
+        <div class="line-contact">
+          <div class="line-contact__intro"><span class="eyebrow eyebrow--light">STAY CONNECTED</span><h1>與魚軒保持聯繫</h1><p>加入官方 LINE 諮詢，或加入社群掌握最新活動。</p></div>
+          <div class="line-contact__cards">
+            <section class="line-card">
+              <a class="line-card__qr" href="https://lin.ee/lXZexVN" target="_blank" rel="noopener noreferrer" aria-label="開啟官方 LINE"><img src="images/line-official-qr.jpg" alt="官方 LINE QR Code" /></a>
+              <div class="line-card__content"><h2>官方 LINE</h2><p class="line-card__id">官方 LINE：&#64;970fpxer<br /><small>(要加 &#64; 才搜尋得到唷!)</small></p><ul><li>魚隻現貨數量詢問</li><li>各類水族器材詢問</li><li>飼養疑難雜症諮詢</li><li>代找特殊魚種服務</li><li>魚隻售後問題處理</li><li>宅配包裹進度查詢</li></ul><a class="line-card__link" href="https://lin.ee/lXZexVN" target="_blank" rel="noopener noreferrer">加入官方 LINE →</a></div>
+            </section>
+            <section class="line-card">
+              <a class="line-card__qr" href="https://line.me/ti/g2/Wxj8zypAWdvqmIbEoGOrczQ8_e3omN9UUdCuUQ?utm_source=invitation&amp;utm_medium=link_copy&amp;utm_campaign=default" target="_blank" rel="noopener noreferrer" aria-label="開啟魚軒水族社群"><img src="images/line-community-qr.jpg" alt="魚軒水族社群 QR Code" /></a>
+              <div class="line-card__content"><h2>魚軒水族社群</h2><ul><li>新魚快報</li><li>特價快報</li><li>好康優惠</li><li>福利競標</li><li>新魚影片</li><li>新魚圖片</li></ul><a class="line-card__link" href="https://line.me/ti/g2/Wxj8zypAWdvqmIbEoGOrczQ8_e3omN9UUdCuUQ?utm_source=invitation&amp;utm_medium=link_copy&amp;utm_campaign=default" target="_blank" rel="noopener noreferrer">加入 LINE 社群 →</a></div>
+            </section>
+          </div>
         </div>
         <small>LINFISH MEMBERSHIP · 2026</small>
       </div>
@@ -133,21 +141,7 @@ import { AuthService } from '../../core/services/auth.service';
       </div>
     </section>
   `,
-  styles: `
-    .form-message-error {
-      margin: 0 0 18px;
-      padding: 12px 14px;
-      color: #8b2d24;
-      background: #fde8e4;
-      border-radius: 8px;
-      font-size: 13px;
-    }
-
-    button:disabled {
-      cursor: wait;
-      opacity: 0.65;
-    }
-  `,
+  styleUrl: '../../css/auth/auth.page.scss',
 })
 export class AuthPageComponent {
   private readonly route = inject(ActivatedRoute);

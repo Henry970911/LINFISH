@@ -8,6 +8,7 @@ import { StoreService } from '../../core/services/store.service';
   selector: 'app-product-card',
   standalone: true,
   imports: [CurrencyPipe, RouterLink],
+  styleUrl: '../../css/shared/product-card.component.scss',
   template: `
     <article class="product-card">
       <a
@@ -26,7 +27,7 @@ import { StoreService } from '../../core/services/store.service';
         >
           ♡
         </button>
-        @if (product.image) { <img [src]="product.image" [alt]="product.name" style="width:100%;height:100%;object-fit:cover" /> } @else { <span class="product-emoji" aria-hidden="true">{{ product.emoji }}</span><span class="visual-caption">圖片待提供</span> }
+        @if (product.image) { <img [src]="product.image" [alt]="product.name" class="product-card__image" /> } @else { <span class="product-emoji" aria-hidden="true">{{ product.emoji }}</span><span class="visual-caption">圖片待提供</span> }
       </a>
       <div class="product-card__body">
         <span class="product-card__meta">{{ categoryName }}</span>

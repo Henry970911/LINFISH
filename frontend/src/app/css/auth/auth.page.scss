@@ -1,0 +1,105 @@
+.form-message-error {
+  margin: 0 0 18px;
+  padding: 12px 14px;
+  color: #8b2d24;
+  background: #fde8e4;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+/* 登入及註冊頁共用的聯絡資訊。 */
+.auth-visual {
+  padding: 48px clamp(28px, 4vw, 64px);
+  gap: 36px;
+}
+.line-contact {
+  width: 100%;
+  max-width: 720px;
+  margin: auto;
+}
+.line-contact__intro h1 {
+  margin: 12px 0;
+  font-family: inherit;
+  font-size: clamp(28px, 2.4vw, 38px);
+  font-weight: 700;
+  line-height: 1.25;
+}
+.line-contact__intro p {
+  margin: 0 0 26px;
+  font-size: 14px;
+}
+.line-contact__cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.line-card {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid #ffffff30;
+  border-radius: 16px;
+  background: #ffffff0d;
+}
+.line-card__qr {
+  display: block;
+  width: min(100%, 180px);
+  padding: 6px;
+  border-radius: 8px;
+  background: #fff;
+}
+.line-card__qr img {
+  width: 100%;
+  height: auto;
+}
+.line-card__content h2 {
+  margin: 16px 0 8px;
+  color: #8ce5b4;
+  font-size: 20px;
+}
+.line-card__content p {
+  margin: 0 0 10px;
+  color: #fff;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.line-card__content p small {
+  color: #bad1cd;
+  font-size: 12px;
+}
+.line-card__content ul {
+  margin: 10px 0 16px;
+  padding-left: 20px;
+  color: #e1efeb;
+  font-size: 14px;
+  line-height: 1.9;
+}
+.line-card__link {
+  color: #a5efc4;
+  font-size: 13px;
+  font-weight: 700;
+}
+.line-card__link:hover {
+  text-decoration: underline;
+}
+@media (max-width: 1100px) and (min-width: 701px) {
+  .line-contact__cards {
+    grid-template-columns: 1fr;
+  }
+  .line-card {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 16px;
+  }
+  .line-card__content h2 {
+    margin-top: 0;
+  }
+}
+@media (max-width: 480px) {
+  .line-contact__cards {
+    grid-template-columns: 1fr;
+  }
+}

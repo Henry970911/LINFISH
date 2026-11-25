@@ -6,6 +6,7 @@ import { ActivatedRoute, Router, RouterLink, RouterLinkActive } from '@angular/r
 import { AuthService } from '../../core/services/auth.service';
 import { MemberProfile, MemberService } from '../../core/services/member.service';
 import { OrderService, OrderSummary } from '../../core/services/order.service';
+import { orderStatusName } from './order-status';
 
 @Component({
   selector: 'app-account-page',
@@ -63,7 +64,10 @@ import { OrderService, OrderSummary } from '../../core/services/order.service';
             <h2>帳戶總覽</h2>
           </div>
           <div class="account-stats">
-            <div><span>進行中訂單</span><b>{{ activeOrderCount }}</b><a routerLink="/account/orders">查看訂單 →</a></div>
+            <div>
+              <span>進行中訂單</span><b>{{ activeOrderCount }}</b
+              ><a routerLink="/account/orders">查看訂單 →</a>
+            </div>
             <div>
               <span>收藏商品</span><b>0</b><a routerLink="/account/favorites">查看收藏 →</a>
             </div>
@@ -72,22 +76,81 @@ import { OrderService, OrderSummary } from '../../core/services/order.service';
               ><small>{{ tierLabel }}</small>
             </div>
           </div>
-          <div class="account-panel">
+          <!-- 最近訂單使用 API 回傳的實際資料。 -->
+          <div class="account-panel recent-orders">
             <div class="panel-head">
               <div>
                 <h3>最近訂單</h3>
                 <p>最近成立的訂單</p>
               </div>
+              <a routerLink="/account/orders">全部訂單 →</a>
             </div>
-            @for(order of orders.slice(0,3);track order.id){<p><a [routerLink]="['/account/orders',order.id]">{{order.orderNo}}</a> · {{order.status}} · {{order.total | currency:'TWD':'NT$'}}</p>}@empty{<div class="empty-state empty-state--small"><p>尚無可顯示的訂單。</p></div>}
+            @for (order of orders.slice(0, 3); track order.id) {
+              <div class="recent-order">
+                <div>
+                  <small>訂單編號</small>
+                  <a [routerLink]="['/account/orders', order.id]">{{ order.orderNo }}</a>
+                  <span class="order-status" [class.is-cancelled]="order.status === 'CANCELLED'">{{
+                    statusName(order.status)
+                  }}</span>
+                </div>
+                <span>{{ order.total | currency: 'TWD' : 'NT$' }}</span>
+              </div>
+            } @empty {
+              <div class="empty-state empty-state--small"><p>尚無可顯示的訂單。</p></div>
+            }
           </div>
         } @else if (section === 'orders') {
           <div class="account-heading">
             <span class="eyebrow">ORDER HISTORY</span>
             <h2>訂單紀錄</h2>
-            <p>查看付款、出貨與歷史訂單。</p>
           </div>
-          <div class="account-panel">@for(order of orders;track order.id){<p><a [routerLink]="['/account/orders',order.id]">{{order.orderNo}}</a> · {{order.orderedAt | date:'yyyy/MM/dd HH:mm'}} · {{order.status}} · {{order.total | currency:'TWD':'NT$'}}</p>}@empty{<p>尚無訂單資料。</p>}</div>
+          <div class="account-panel order-list-panel">
+            @if (orders.length) {
+              <div class="order-table-wrap">
+                <table class="order-table">
+                  <thead>
+                    <tr>
+                      <th>訂單編號</th>
+                      <th>日期</th>
+                      <th>狀態</th>
+                      <th>金額</th>
+                      <th><span class="visually-hidden">訂單明細</span></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (order of orders; track order.id) {
+                      <tr>
+                        <td>
+                          <a class="order-number" [routerLink]="['/account/orders', order.id]">{{
+                            order.orderNo
+                          }}</a>
+                        </td>
+                        <td>{{ order.orderedAt | date: 'yyyy/MM/dd HH:mm' }}</td>
+                        <td>
+                          <span
+                            class="order-status"
+                            [class.is-cancelled]="order.status === 'CANCELLED'"
+                            >{{ statusName(order.status) }}</span
+                          >
+                        </td>
+                        <td>{{ order.total | currency: 'TWD' : 'NT$' }}</td>
+                        <td>
+                          <a
+                            [routerLink]="['/account/orders', order.id]"
+                            [attr.aria-label]="'查看訂單 ' + order.orderNo"
+                            >查看 →</a
+                          >
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            } @else {
+              <div class="empty-state empty-state--small"><p>尚無訂單資料。</p></div>
+            }
+          </div>
         } @else if (section === 'profile') {
           <div class="account-heading">
             <span class="eyebrow">PROFILE</span>
@@ -133,16 +196,7 @@ import { OrderService, OrderSummary } from '../../core/services/order.service';
       </main>
     </div>
   `,
-  styles: `
-    .account-error {
-      color: #9a3026;
-    }
-
-    input[readonly] {
-      background: #f6f4ef;
-      cursor: default;
-    }
-  `,
+  styleUrl: '../../css/account/account.page.scss',
 })
 export class AccountPageComponent implements OnInit {
   private readonly authService = inject(AuthService);
@@ -154,6 +208,8 @@ export class AccountPageComponent implements OnInit {
 
   readonly section = (this.route.snapshot.data['section'] ?? 'overview') as string;
 
+  readonly statusName = orderStatusName;
+
   member: MemberProfile | null = null;
   orders: OrderSummary[] = [];
   profile = { name: '', phone: '', email: '' };
@@ -164,7 +220,9 @@ export class AccountPageComponent implements OnInit {
     return this.member?.userName || this.member?.email.split('@')[0] || '會員';
   }
 
-  get activeOrderCount(): number { return this.orders.filter(order => !['COMPLETED','CANCELLED'].includes(order.status)).length; }
+  get activeOrderCount(): number {
+    return this.orders.filter((order) => !['COMPLETED', 'CANCELLED'].includes(order.status)).length;
+  }
 
   get memberInitial(): string {
     return this.displayName.trim().charAt(0).toUpperCase() || '會';
@@ -191,7 +249,8 @@ export class AccountPageComponent implements OnInit {
         phone: this.member.userPhone ?? '',
         email: this.member.email,
       };
-      if (this.section === 'orders' || this.section === 'overview') this.orders = await this.orderService.mine();
+      if (this.section === 'orders' || this.section === 'overview')
+        this.orders = await this.orderService.mine();
     } catch (error) {
       if (error instanceof HttpErrorResponse && error.status === 401) {
         await this.authService.signOut();
@@ -202,8 +261,7 @@ export class AccountPageComponent implements OnInit {
       }
 
       if (error instanceof HttpErrorResponse && error.status === 404) {
-        this.errorMessage =
-          '已登入，但資料庫中找不到對應的會員資料，請確認該帳號仍存在。';
+        this.errorMessage = '已登入，但資料庫中找不到對應的會員資料，請確認該帳號仍存在。';
       } else {
         this.errorMessage =
           error instanceof Error

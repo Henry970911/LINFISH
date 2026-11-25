@@ -12,12 +12,13 @@ export class StoreService {
   private readonly http = inject(HttpClient);
   private loadGeneration = 0;
 
-  readonly categories = computed(() => CATEGORIES.map(category => ({...category,itemCount:this.products().filter(p=>p.groupSlug===category.slug).length})));
-  readonly catalogFilterGroups = computed(() => CATALOG_FILTER_GROUPS.map(group => ({...group,itemCount:this.products().filter(p=>p.groupSlug===group.slug).length,options:group.options.map(option=>({...option,itemCount:this.products().filter(p=>p.groupSlug===group.slug && p.subcategorySlug===option.slug).length}))})));
+  readonly categories = computed(() => CATEGORIES.map(category => ({ ...category, itemCount: this.products().filter(p => p.groupSlug === category.slug).length })));
+  readonly catalogFilterGroups = computed(() => CATALOG_FILTER_GROUPS.map(group => ({ ...group, itemCount: this.products().filter(p => p.groupSlug === group.slug).length, options: group.options.map(option => ({ ...option, itemCount: this.products().filter(p => p.groupSlug === group.slug && p.subcategorySlug === option.slug).length })) })));
   readonly products = signal<Product[]>([]);
   readonly orders = signal<import('../models/store.models').OrderSummary[]>([]);
   readonly cart = signal<CartItem[]>([]);
   readonly catalogError = signal('');
+  
   // 會員狀態直接連結真實登入 session，不再使用 demo 帳號狀態。
   readonly isMember = this.authService.isAuthenticated;
 
@@ -35,12 +36,12 @@ export class StoreService {
   async loadCatalog(): Promise<void> {
     const generation = ++this.loadGeneration;
     try {
-      const items = await firstValueFrom(this.http.get<Array<{id:number;productNo:string;productName:string;description:string;proNo:string;categoryNo:string;categoryName:string;image:string|null;images:string[];videoUrl:string|null;variationName:string|null;totalStock:number;inventoryUnit:string;skus:NonNullable<Product['skus']>}>>(`${environment.apiBaseUrl}/catalog/products`));
+      const items = await firstValueFrom(this.http.get<Array<{ id: number; productNo: string; productName: string; description: string; proNo: string; categoryNo: string; categoryName: string; image: string | null; images: string[]; videoUrl: string | null; variationName: string | null; totalStock: number; inventoryUnit: string; skus: NonNullable<Product['skus']> }>>(`${environment.apiBaseUrl}/catalog/products`));
       if (generation !== this.loadGeneration) return;
-      const groupMap: Record<string,string> = {FISI:'fish',AQUI:'equipment',FEEI:'food'};
-      this.products.set(items.map(p => { const group=groupMap[p.proNo] ?? ''; const index=Number(p.categoryNo.slice(4)); const option=CATALOG_FILTER_GROUPS.find(g=>g.slug===group)?.options[index]; const prices=p.skus.flatMap(s=>s.price===null?[]:[s.price]); return {id:p.id,slug:String(p.id),name:p.productName,categorySlug:group,groupSlug:group,subcategorySlug:option?.slug ?? p.categoryNo,price:prices.length ? Math.min(...prices) : 0,emoji:'🐠',gradient:'#edf5f1',description:p.description,careLevel:'入門',size:'',temperature:'',stock:p.totalStock,inventoryUnit:p.inventoryUnit,image:p.image,images:p.images,videoUrl:p.videoUrl,variationName:p.variationName,skus:p.skus} satisfies Product; }));
+      const groupMap: Record<string, string> = { FISI: 'fish', AQUI: 'equipment', FEEI: 'food' };
+      this.products.set(items.map(p => { const group = groupMap[p.proNo] ?? ''; const index = Number(p.categoryNo.slice(4)); const option = CATALOG_FILTER_GROUPS.find(g => g.slug === group)?.options[index]; const prices = p.skus.flatMap(s => s.price === null ? [] : [s.price]); return { id: p.id, slug: String(p.id), name: p.productName, categorySlug: group, groupSlug: group, subcategorySlug: option?.slug ?? p.categoryNo, price: prices.length ? Math.min(...prices) : 0, emoji: '🐠', gradient: '#edf5f1', description: p.description, careLevel: '入門', size: '', temperature: '', stock: p.totalStock, inventoryUnit: p.inventoryUnit, image: p.image, images: p.images, videoUrl: p.videoUrl, variationName: p.variationName, skus: p.skus } satisfies Product; }));
       this.catalogError.set('');
-    } catch { if(generation===this.loadGeneration) { this.products.set([]); this.catalogError.set('商品資料無法載入，請稍後再試。'); } }
+    } catch { if (generation === this.loadGeneration) { this.products.set([]); this.catalogError.set('商品資料無法載入，請稍後再試。'); } }
   }
 
   productBySlug(slug: string | null): Product | undefined {
@@ -58,7 +59,7 @@ export class StoreService {
       const existing = items.find((item) => item.product.skuId === product.skuId);
       if (existing) {
         return items.map((item) =>
-          item.product.skuId === product.skuId ? { ...item, quantity: Math.min(product.stock,item.quantity + quantity) } : item,
+          item.product.skuId === product.skuId ? { ...item, quantity: Math.min(product.stock, item.quantity + quantity) } : item,
         );
       }
       return [...items, { product, quantity }];
@@ -68,7 +69,7 @@ export class StoreService {
   updateQuantity(productId: number, quantity: number): void {
     if (quantity <= 0) return this.removeFromCart(productId);
     this.cart.update((items) =>
-      items.map((item) => (item.product.skuId === productId ? { ...item, quantity: Math.min(quantity,item.product.stock) } : item)),
+      items.map((item) => (item.product.skuId === productId ? { ...item, quantity: Math.min(quantity, item.product.stock) } : item)),
     );
   }
 
