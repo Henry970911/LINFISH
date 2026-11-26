@@ -98,8 +98,6 @@
   object-fit: cover;
 }
 
-<<<<<<< HEAD
-=======
 .sku-image-placeholder {
   display: grid;
   place-items: center;
@@ -143,7 +141,6 @@
   outline-offset: 2px;
 }
 
->>>>>>> fc81e8ed (20261126 版本修改)
 .image-card div {
   display: flex;
   flex-wrap: wrap;
@@ -185,8 +182,6 @@
   background: #17231eb3;
 }
 
-<<<<<<< HEAD
-=======
 .validation-dialog {
   width: min(520px, calc(100vw - 32px));
   max-height: 80vh;
@@ -232,7 +227,6 @@
 @keyframes list-appear { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 @media (prefers-reduced-motion: reduce) { .list-transition { animation: none; } }
 
->>>>>>> fc81e8ed (20261126 版本修改)
 .preview-head {
   display: flex;
   justify-content: space-between;

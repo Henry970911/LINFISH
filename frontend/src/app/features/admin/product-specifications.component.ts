@@ -19,11 +19,7 @@ interface SpecField { key: string; label: string; unit?: string; type?: 'select'
       <h4>商品設定 [各規格的實際庫存分開記錄；同一規格的不同購買數量共用庫存。]</h4>
       @if (!category) { <p class="category-hint">請先選擇商品主分類。</p> }
       @else {
-<<<<<<< HEAD
-        <label>商品總數<input type="number" min="0" step="1" [(ngModel)]="total" (ngModelChange)="changed()" /></label>
-=======
         <label>商品總數<input type="number" placeholder="例：10" min="0" step="1" [(ngModel)]="total" (ngModelChange)="changed()" /></label>
->>>>>>> fc81e8ed (20261126 版本修改)
         <p>已分配 ({{ allocated }}) | {{ total ?? '未設定' }}</p>
         @for (row of rows; track row.id; let index = $index) {
           <div class="specification-row">
@@ -50,13 +46,8 @@ interface SpecField { key: string; label: string; unit?: string; type?: 'select'
                   <label>每次購買包數<input type="number" placeholder="例：1" min="1" step="1" [ngModel]="option.unitKind==='包' ? option.units : null" [disabled]="unitKindDisabled('包')" (ngModelChange)="setSaleUnit(option,'包',$event)" /></label>
                   @if(category==='FEEI'){<label>每次購買瓶數<input type="number" placeholder="例：1" min="1" step="1" [ngModel]="option.unitKind==='瓶' ? option.units : null" [disabled]="unitKindDisabled('瓶')" (ngModelChange)="setSaleUnit(option,'瓶',$event)" /></label>}
                 }
-<<<<<<< HEAD
-                <label>實際金額 (元)<input type="number" min="0" step="0.01" [(ngModel)]="option.price" (ngModelChange)="changed()" /></label>
-                <label>建議金額 (元)<input type="number" min="0" step="0.01" [(ngModel)]="option.suggestedPrice" (ngModelChange)="changed()" /></label>
-=======
                 <label>實際金額 (元)<input type="number" placeholder="例：100" min="0" step="0.01" [(ngModel)]="option.price" (ngModelChange)="changed()" /></label>
                 <label>建議金額 (元)<input type="number" placeholder="例：120" min="0" step="0.01" [(ngModel)]="option.suggestedPrice" (ngModelChange)="changed()" /></label>
->>>>>>> fc81e8ed (20261126 版本修改)
                 <label>稅別<select [(ngModel)]="option.taxTypeId" (ngModelChange)="changed()"><option [ngValue]="null">請選擇稅別</option>@for(tax of taxes;track tax.id){@if(tax.isActive){<option [ngValue]="tax.id">{{tax.name}}</option>}}</select></label>
                 <label>配送溫層<select [(ngModel)]="option.temperatureZone" (ngModelChange)="option.shippingMethodIds=[];changed()"><option value="AMBIENT">常溫</option><option value="CHILLED">冷藏</option><option value="FROZEN">冷凍</option></select></label>
                 <label><span>規格圖片<br />(JPG / PNG，最多 5 MB)</span><input type="file" accept="image/jpeg,image/png" (change)="selectImage(option,$event)" />@if(option.imageFile){<small>待上傳：{{option.imageFile.name}}</small>}</label>

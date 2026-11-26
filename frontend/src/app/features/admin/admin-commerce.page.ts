@@ -118,8 +118,6 @@ interface PendingImage {
     @if (message()) {
       <p role="status">{{ message() }}</p>
     }
-<<<<<<< HEAD
-=======
     <dialog #validationDialog class="validation-dialog" aria-labelledby="validation-title">
       <h2 id="validation-title">請確認商品資料</h2>
       <p>請先完成或修正以下項目，再儲存商品：</p>
@@ -133,7 +131,6 @@ interface PendingImage {
       <p class="success-countdown" role="status">{{ transitionSeconds() }} 秒後回到商品列表</p>
       <div class="success-progress" aria-hidden="true"><span></span></div>
     </dialog>
->>>>>>> fc81e8ed (20261126 版本修改)
     <dialog #previewDialog class="product-preview">
       <div class="preview-head">
         <div>
@@ -184,11 +181,7 @@ interface PendingImage {
       <form method="dialog"><button class="admin-secondary-btn">關閉預覽</button></form>
     </dialog>
     @if (!editorOpen) {
-<<<<<<< HEAD
-      <section class="admin-card editor-card">
-=======
       <section class="admin-card editor-card" [class.list-transition]="transitioning()">
->>>>>>> fc81e8ed (20261126 版本修改)
         <h2>
           全部商品 <small>共 {{ products().length }} 件</small>
         </h2>
@@ -285,11 +278,7 @@ interface PendingImage {
           <p>尚無啟用的商品細分類，請先確認 product_category 資料。</p>
         }
 
-<<<<<<< HEAD
-        <form id="product-editor-form" (ngSubmit)="saveProduct()" #productForm="ngForm">
-=======
         <form id="product-editor-form" (ngSubmit)="saveProduct(validationDialog, successDialog)" #productForm="ngForm">
->>>>>>> fc81e8ed (20261126 版本修改)
 
             <label>商品名稱<input name="productName" [(ngModel)]="form.productName" maxlength="150" required /></label>
 
@@ -333,12 +322,9 @@ interface PendingImage {
       </section>
 
       @if (!editingId || selected()?.usesSharedInventory) {
-<<<<<<< HEAD
-=======
         @if (editingId && !inventoryReady()) {
           <section class="admin-card editor-card"><p>商品規格載入中或載入失敗，請確認上方訊息。</p></section>
         } @else {
->>>>>>> fc81e8ed (20261126 版本修改)
         <app-product-specifications
           [category]="mainCategory"
           [rows]="inventoryRows"
@@ -347,10 +333,7 @@ interface PendingImage {
           [shipping]="shipping()"
           (draftChange)="inventoryRows = $event.rows; inventoryTotal = $event.total"
         />
-<<<<<<< HEAD
-=======
         }
->>>>>>> fc81e8ed (20261126 版本修改)
       }
       @if (editingId && !selected()?.usesSharedInventory) {
         <section class="admin-card editor-card">
@@ -494,11 +477,8 @@ interface PendingImage {
             <div class="admin-line-item">
               @if (s.imageUrl) {
                 <img [src]="s.imageUrl" [alt]="s.skuName" class="listing-image" />
-<<<<<<< HEAD
-=======
               } @else {
                 <span class="listing-image listing-image--empty">無圖片</span>
->>>>>>> fc81e8ed (20261126 版本修改)
               }
               <p>
                 <b>{{ s.skuName }}</b><small>庫存 {{ s.stockQty }} · {{ s.isActive ? '啟用' : '停用' }}</small><label>規格圖片<input type="file" accept="image/jpeg,image/png" [disabled]="busy()" (change)="uploadSkuImage(s, $event)" /></label>
@@ -514,19 +494,6 @@ interface PendingImage {
         <section class="admin-card editor-card">
           <h2>規格圖片</h2>
 
-<<<<<<< HEAD
-          @for (s of skus(); track s.id) {
-            <div class="admin-line-item">
-              @if (s.imageUrl) {
-                <img [src]="s.imageUrl" [alt]="s.skuName" class="listing-image" />
-              }
-              <p>
-                <b>{{ s.skuName }}</b><label>規格圖片<input type="file" accept="image/jpeg,image/png" [disabled]="busy()" (change)="uploadSkuImage(s, $event)" /></label>
-
-              </p>
-            </div>
-          }
-=======
           <div class="image-grid">
           @for (s of skus(); track s.id) {
             <div class="image-card sku-image-card">
@@ -542,18 +509,13 @@ interface PendingImage {
             </div>
           }
           </div>
->>>>>>> fc81e8ed (20261126 版本修改)
         </section>
 
       }
       <div class="editor-actions">
         <button class="admin-secondary-btn" type="button" (click)="previewDialog.showModal()">預覽商品</button>
 
-<<<<<<< HEAD
-        <button class="admin-primary-btn" type="submit" form="product-editor-form" [disabled]="productForm.invalid || !form.categoryId || busy()">儲存商品</button>
-=======
         <button class="admin-primary-btn" type="submit" form="product-editor-form" [disabled]="busy() || (!!editingId && (productForm.invalid || !form.categoryId || (!!selected()?.usesSharedInventory && !inventoryReady())))">儲存商品</button>
->>>>>>> fc81e8ed (20261126 版本修改)
       </div>
     }
   `,
@@ -571,15 +533,10 @@ export class AdminCommercePageComponent implements OnDestroy {
   shipping = signal<ShippingOption[]>([]);
   selected = signal<Product | null>(null);
   mainCategory = '';
-<<<<<<< HEAD
-  private previousMainCategory = '';
-  editorOpen = false;
-=======
   editorOpen = false;
   readonly transitioning = signal(false);
   readonly transitionSeconds = signal(3);
   readonly successMessage = signal('商品資料已儲存。');
->>>>>>> fc81e8ed (20261126 版本修改)
   keyword = '';
   filterMain = '';
   filterStatus = '';
@@ -607,11 +564,8 @@ export class AdminCommercePageComponent implements OnDestroy {
   pendingImages = signal<PendingImage[]>([]);
   inventoryRows: InventoryDraft[] = [];
   inventoryTotal: number | null = null;
-<<<<<<< HEAD
-=======
   validationIssues: string[] = [];
   inventoryReady = signal(false);
->>>>>>> fc81e8ed (20261126 版本修改)
   private inventorySnapshot = '';
   get inventoryDirty() {
     return (
@@ -733,10 +687,6 @@ export class AdminCommercePageComponent implements OnDestroy {
     this.batchRows = [];
     this.editingId = p.id;
     this.mainCategory = this.categories().find((c) => c.id === p.categoryId)?.proNo ?? '';
-<<<<<<< HEAD
-    this.previousMainCategory = this.mainCategory;
-=======
->>>>>>> fc81e8ed (20261126 版本修改)
     this.form = {
       productNo: p.productNo,
       categoryId: p.categoryId,
@@ -751,28 +701,13 @@ export class AdminCommercePageComponent implements OnDestroy {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   changeMainCategory() {
-<<<<<<< HEAD
-    if (this.inventoryRows.length && !confirm('變更主分類會清除尚未儲存的規格，確定變更？')) {
-      this.mainCategory = this.previousMainCategory;
-      return;
-    }
     this.inventoryRows = [];
     this.inventoryTotal = null;
     this.form.categoryId = 0;
-    this.previousMainCategory = this.mainCategory;
-=======
-    this.inventoryRows = [];
-    this.inventoryTotal = null;
-    this.form.categoryId = 0;
->>>>>>> fc81e8ed (20261126 版本修改)
   }
   reset() {
     this.editingId = null;
     this.mainCategory = '';
-<<<<<<< HEAD
-    this.previousMainCategory = '';
-=======
->>>>>>> fc81e8ed (20261126 版本修改)
     this.form = {
       productNo: '',
       categoryId: 0,
@@ -829,10 +764,6 @@ export class AdminCommercePageComponent implements OnDestroy {
       this.busy.set(false);
     }
   }
-<<<<<<< HEAD
-  async saveProduct() {
-    if (this.busy()) return;
-=======
   private validateNewProduct(): string[] {
     const issues: string[] = [];
     if (!this.form.productName.trim()) issues.push('請填寫商品名稱。');
@@ -875,7 +806,6 @@ export class AdminCommercePageComponent implements OnDestroy {
       this.validationIssues = this.validateNewProduct();
       if (this.validationIssues.length) { dialog?.showModal(); return; }
     }
->>>>>>> fc81e8ed (20261126 版本修改)
     if (this.priceRowsDirty) {
       this.message.set('請先儲存或取消價格與庫存的變更。');
       return;
@@ -1033,12 +963,6 @@ export class AdminCommercePageComponent implements OnDestroy {
           this.fail(e);
           this.form.status = saved.status;
           this.message.update((m) => `商品及規格已儲存，但上架未完成：${m}`);
-<<<<<<< HEAD
-        }
-      } else if (creating) this.message.set('商品與規格已儲存為草稿。');
-    } catch (e) {
-      this.fail(e);
-=======
           return;
         }
       } else if (creating) this.message.set('商品與規格已儲存為草稿。');
@@ -1069,16 +993,12 @@ export class AdminCommercePageComponent implements OnDestroy {
         this.validationIssues = [this.message()];
         dialog.showModal();
       }
->>>>>>> fc81e8ed (20261126 版本修改)
     } finally {
       this.busy.set(false);
     }
   }
   async selectProduct(p: Product) {
-<<<<<<< HEAD
-=======
     this.inventoryReady.set(false);
->>>>>>> fc81e8ed (20261126 版本修改)
     this.selected.set(p);
     this.skus.set([]);
     this.images.set([]);
@@ -1096,10 +1016,7 @@ export class AdminCommercePageComponent implements OnDestroy {
           rows: this.inventoryRows,
           total: this.inventoryTotal,
         });
-<<<<<<< HEAD
-=======
         this.inventoryReady.set(true);
->>>>>>> fc81e8ed (20261126 版本修改)
       } catch (e) {
         this.fail(e);
       }

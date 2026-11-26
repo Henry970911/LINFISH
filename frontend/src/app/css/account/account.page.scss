@@ -2,8 +2,6 @@
   color: #9a3026;
 }
 
-<<<<<<< HEAD
-=======
 .account-sidebar nav a {
   font-size: 13px;
 }
@@ -23,7 +21,6 @@
   cursor: pointer;
 }
 
->>>>>>> fc81e8ed (20261126 版本修改)
 input[readonly] {
   background: #f6f4ef;
   cursor: default;
@@ -55,20 +52,12 @@ input[readonly] {
   min-width: 180px;
 }
 .order-table a,
-<<<<<<< HEAD
-.recent-order a,
-=======
->>>>>>> fc81e8ed (20261126 版本修改)
 .panel-head > a {
   color: var(--deep);
   font-weight: 700;
 }
-<<<<<<< HEAD
-.order-table td:last-child {
-=======
 .order-table td:last-child,
 .recent-orders .order-table th:last-child {
->>>>>>> fc81e8ed (20261126 版本修改)
   text-align: right;
 }
 .order-status {
@@ -84,22 +73,6 @@ input[readonly] {
   background: #eef1ef;
   color: #6d7873;
 }
-<<<<<<< HEAD
-.recent-order {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  padding: 15px 0;
-  border-top: 1px solid #e3e9e6;
-  font-size: 13px;
-}
-.recent-order small {
-  color: #82918c;
-  margin-right: 8px;
-}
-=======
->>>>>>> fc81e8ed (20261126 版本修改)
 .visually-hidden {
   position: absolute;
   width: 1px;
