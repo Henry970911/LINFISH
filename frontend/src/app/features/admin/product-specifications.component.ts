@@ -19,7 +19,11 @@ interface SpecField { key: string; label: string; unit?: string; type?: 'select'
       <h4>商品設定 [各規格的實際庫存分開記錄；同一規格的不同購買數量共用庫存。]</h4>
       @if (!category) { <p class="category-hint">請先選擇商品主分類。</p> }
       @else {
+<<<<<<< HEAD
         <label>商品總數<input type="number" min="0" step="1" [(ngModel)]="total" (ngModelChange)="changed()" /></label>
+=======
+        <label>商品總數<input type="number" placeholder="例：10" min="0" step="1" [(ngModel)]="total" (ngModelChange)="changed()" /></label>
+>>>>>>> fc81e8ed (20261126 版本修改)
         <p>已分配 ({{ allocated }}) | {{ total ?? '未設定' }}</p>
         @for (row of rows; track row.id; let index = $index) {
           <div class="specification-row">
@@ -30,24 +34,29 @@ interface SpecField { key: string; label: string; unit?: string; type?: 'select'
                   @if (field.type === 'select') {
                     <select [(ngModel)]="row.attributes[field.key]" (ngModelChange)="changed()"><option [ngValue]="null">不設定</option>@for(option of field.options;track option){<option [value]="option">{{ option }}</option>}</select>
                   } @else {
-                    <input type="number" [min]="field.min ?? 0" [max]="field.max ?? null" [step]="field.step ?? 'any'" [(ngModel)]="row.attributes[field.key]" (ngModelChange)="changed()" />
+                    <input type="number" [placeholder]="exampleFor(field.unit)" [min]="field.min ?? 0" [max]="field.max ?? null" [step]="field.step ?? 'any'" [(ngModel)]="row.attributes[field.key]" (ngModelChange)="changed()" />
                   }
                 </label>
               }
-              <label>此規格實際庫存<input type="number" min="0" step="1" [(ngModel)]="row.stock" (ngModelChange)="changed()" /></label>
+              <label>此規格實際庫存<input type="number" placeholder="例：10" min="0" step="1" [(ngModel)]="row.stock" (ngModelChange)="changed()" /></label>
             </div>
             <h4>購買選項</h4>
             @for (option of row.options; track $index; let saleIndex = $index) {
               <div class="sale-option-group">
               <div class="sale-option">
-                @if(category==='FISI'){<label>每次購買隻數<input type="number" min="1" step="1" [(ngModel)]="option.units" (ngModelChange)="option.unitKind='隻';changed()" /></label>}
+                @if(category==='FISI'){<label>每次購買隻數<input type="number" placeholder="例：1" min="1" step="1" [(ngModel)]="option.units" (ngModelChange)="option.unitKind='隻';changed()" /></label>}
                 @else {
-                  <label>每次購買件數<input type="number" min="1" step="1" [ngModel]="option.unitKind==='件' ? option.units : null" [disabled]="unitKindDisabled('件')" (ngModelChange)="setSaleUnit(option,'件',$event)" /></label>
-                  <label>每次購買包數<input type="number" min="1" step="1" [ngModel]="option.unitKind==='包' ? option.units : null" [disabled]="unitKindDisabled('包')" (ngModelChange)="setSaleUnit(option,'包',$event)" /></label>
-                  @if(category==='FEEI'){<label>每次購買瓶數<input type="number" min="1" step="1" [ngModel]="option.unitKind==='瓶' ? option.units : null" [disabled]="unitKindDisabled('瓶')" (ngModelChange)="setSaleUnit(option,'瓶',$event)" /></label>}
+                  <label>每次購買件數<input type="number" placeholder="例：1" min="1" step="1" [ngModel]="option.unitKind==='件' ? option.units : null" [disabled]="unitKindDisabled('件')" (ngModelChange)="setSaleUnit(option,'件',$event)" /></label>
+                  <label>每次購買包數<input type="number" placeholder="例：1" min="1" step="1" [ngModel]="option.unitKind==='包' ? option.units : null" [disabled]="unitKindDisabled('包')" (ngModelChange)="setSaleUnit(option,'包',$event)" /></label>
+                  @if(category==='FEEI'){<label>每次購買瓶數<input type="number" placeholder="例：1" min="1" step="1" [ngModel]="option.unitKind==='瓶' ? option.units : null" [disabled]="unitKindDisabled('瓶')" (ngModelChange)="setSaleUnit(option,'瓶',$event)" /></label>}
                 }
+<<<<<<< HEAD
                 <label>實際金額 (元)<input type="number" min="0" step="0.01" [(ngModel)]="option.price" (ngModelChange)="changed()" /></label>
                 <label>建議金額 (元)<input type="number" min="0" step="0.01" [(ngModel)]="option.suggestedPrice" (ngModelChange)="changed()" /></label>
+=======
+                <label>實際金額 (元)<input type="number" placeholder="例：100" min="0" step="0.01" [(ngModel)]="option.price" (ngModelChange)="changed()" /></label>
+                <label>建議金額 (元)<input type="number" placeholder="例：120" min="0" step="0.01" [(ngModel)]="option.suggestedPrice" (ngModelChange)="changed()" /></label>
+>>>>>>> fc81e8ed (20261126 版本修改)
                 <label>稅別<select [(ngModel)]="option.taxTypeId" (ngModelChange)="changed()"><option [ngValue]="null">請選擇稅別</option>@for(tax of taxes;track tax.id){@if(tax.isActive){<option [ngValue]="tax.id">{{tax.name}}</option>}}</select></label>
                 <label>配送溫層<select [(ngModel)]="option.temperatureZone" (ngModelChange)="option.shippingMethodIds=[];changed()"><option value="AMBIENT">常溫</option><option value="CHILLED">冷藏</option><option value="FROZEN">冷凍</option></select></label>
                 <label><span>規格圖片<br />(JPG / PNG，最多 5 MB)</span><input type="file" accept="image/jpeg,image/png" (change)="selectImage(option,$event)" />@if(option.imageFile){<small>待上傳：{{option.imageFile.name}}</small>}</label>
@@ -75,14 +84,13 @@ export class ProductSpecificationsComponent {
   @Output() draftChange = new EventEmitter<{rows: InventoryDraft[]; total: number | null}>();
 
   readonly fish: SpecField[] = [
-    {key:'lengthCm',label:'長度',unit:'cm',min:0.1,max:500,step:0.1},
-    {key:'color',label:'顏色',type:'select',options:['黑色','紅色','彩色','白色','橘色','黃色','藍色','綠色']},
+    {key:'lengthCm',label:'尺寸',unit:'cm',min:0.1,max:500,step:0.1},
   ];
   readonly equipment: SpecField[] = [
     {key:'size',label:'尺寸',type:'select',options:['S','M','L','XL','XXL']},
     {key:'cc',label:'容量',unit:'cc'},
     {key:'watt',label:'功率',unit:'W'}, {key:'litre',label:'容量',unit:'L'},
-    {key:'foot',label:'長度',unit:'尺'}, {key:'singleHole',label:'單孔型號',unit:'型'},
+    {key:'foot',label:'尺寸',unit:'尺'}, {key:'singleHole',label:'單孔型號',unit:'型'},
     {key:'doubleHole',label:'雙孔型號',unit:'型'},
   ];
   readonly feed: SpecField[] = [
@@ -94,11 +102,15 @@ export class ProductSpecificationsComponent {
     {key:'ml',label:'容量',unit:'ml'}, {key:'g',label:'重量',unit:'g'}, {key:'kg',label:'重量',unit:'kg'},
   ];
   get fields(): SpecField[] { return this.category === 'FISI' ? this.fish : this.category === 'AQUI' ? this.equipment : this.category === 'FEEI' ? this.feed : []; }
+  exampleFor(unit?: string): string {
+    const examples: Record<string, string> = { cm: '5', cc: '500', W: '10', L: '2', 尺: '2', 型: '1', g: '100', ml: '500', kg: '1' };
+    return `例：${unit ? (examples[unit] ?? '1') : '1'}`;
+  }
   get allocated(): number { return this.rows.reduce((sum,row)=>sum+(Number(row.stock)||0),0); }
   unitKindDisabled(unit: string): boolean { const kinds=this.rows.flatMap(r=>r.options).filter(o=>o.units!==null && o.unitKind).map(o=>o.unitKind);return kinds.some(k=>k!==unit); }
   setSaleUnit(option:SaleOptionDraft,unit:string,value:number|null):void {option.units=value;option.unitKind=value===null?null:unit;this.changed();}
   private newOption(units: number | null): SaleOptionDraft { return {units,unitKind:this.category==='FISI'?'隻':null,price:null,suggestedPrice:null,taxTypeId:null,temperatureZone:'AMBIENT',shippingMethodIds:[],isActive:true}; }
-  add(): void { this.rows = [...this.rows,{id:crypto.randomUUID(),attributes:{},stock:null,options:[this.newOption(this.category==='FISI'?1:null)]}]; this.changed(); }
+  add(): void { this.rows = [...this.rows,{id:crypto.randomUUID(),attributes:{},stock:null,options:[this.newOption(null)]}]; this.changed(); }
   remove(index: number): void { this.rows = this.rows.filter((_,i)=>i!==index); this.changed(); }
   addOption(row: InventoryDraft): void { row.options.push(this.newOption(null)); this.changed(); }
   setShipping(option: SaleOptionDraft, id: number, checked: boolean): void { option.shippingMethodIds = checked ? [...option.shippingMethodIds,id] : option.shippingMethodIds.filter(x=>x!==id); this.changed(); }

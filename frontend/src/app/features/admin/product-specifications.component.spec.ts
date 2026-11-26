@@ -5,7 +5,7 @@ describe('商品規格輸入', () => {
   it('依主分類提供不同欄位，並加總獨立庫存', () => {
     const component = new ProductSpecificationsComponent();
     component.category = 'FISI';
-    expect(component.fields.map(x=>x.key)).toEqual(['lengthCm','color']);
+    expect(component.fields.map(x=>x.key)).toEqual(['lengthCm']);
     component.add(); component.add();
     component.rows[0].stock=10; component.rows[1].stock=8;
     expect(component.allocated).toBe(18);

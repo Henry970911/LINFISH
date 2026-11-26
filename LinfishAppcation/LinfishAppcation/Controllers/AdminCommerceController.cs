@@ -41,10 +41,15 @@ public sealed class AdminCommerceController(AppDbContext db, ProductImageService
     public async Task<IActionResult> Categories(CancellationToken ct)
     {
         await Connection.OpenAsync(ct);
+
         await using var cmd = new NpgsqlCommand("select id,pro_no,category_no,category_name from cmepms.product_category where is_active order by sort_order,id", Connection);
+
         await using var reader = await cmd.ExecuteReaderAsync(ct);
+
         var items = new List<object>();
+
         while (await reader.ReadAsync(ct)) items.Add(new { id = reader.GetInt64(0), proNo = reader.GetString(1), categoryNo = reader.GetString(2), categoryName = reader.GetString(3) });
+
         return Ok(items);
     }
 
@@ -52,6 +57,7 @@ public sealed class AdminCommerceController(AppDbContext db, ProductImageService
     public async Task<IActionResult> Products(CancellationToken ct)
     {
         await Connection.OpenAsync(ct);
+
         await using var cmd = new NpgsqlCommand("""
             select p.id,p.product_no,p.category_id,p.product_name,p.description,p.status,c.category_name,c.pro_no,
                    (select i.object_key from cmepms.product_image i where i.product_id=p.id order by i.is_main desc,i.sort_order,i.id limit 1),
@@ -61,9 +67,13 @@ public sealed class AdminCommerceController(AppDbContext db, ProductImageService
             left join lateral (select min(price) minimum_price,max(price) maximum_price from cmepms.product_sku where product_id=p.id and is_active) s on true
             where not p.is_deleted order by p.id desc
             """, Connection);
+
         await using var reader = await cmd.ExecuteReaderAsync(ct);
+
         var items = new List<object>();
-        while (await reader.ReadAsync(ct)) items.Add(new { id = reader.GetInt64(0), productNo = reader.GetString(1), categoryId = reader.GetInt64(2), productName = reader.GetString(3), description = reader.IsDBNull(4) ? null : reader.GetString(4), status = reader.GetString(5), categoryName = reader.GetString(6), proNo = reader.GetString(7), image = reader.IsDBNull(8) ? null : imageService.ResolveUrl(reader.GetString(8)), minimumPrice = reader.IsDBNull(9) ? (decimal?)null : reader.GetDecimal(9), maximumPrice = reader.IsDBNull(10) ? (decimal?)null : reader.GetDecimal(10), stock = reader.GetInt64(11), videoUrl = reader.IsDBNull(12) ? null : reader.GetString(12), variationName = reader.IsDBNull(13) ? null : reader.GetString(13), variationMode = reader.GetString(14), usesSharedInventory=reader.GetBoolean(15) });
+
+        while (await reader.ReadAsync(ct)) items.Add(new { id = reader.GetInt64(0), productNo = reader.GetString(1), categoryId = reader.GetInt64(2), productName = reader.GetString(3), description = reader.IsDBNull(4) ? null : reader.GetString(4), status = reader.GetString(5), categoryName = reader.GetString(6), proNo = reader.GetString(7), image = reader.IsDBNull(8) ? null : imageService.ResolveUrl(reader.GetString(8)), minimumPrice = reader.IsDBNull(9) ? (decimal?)null : reader.GetDecimal(9), maximumPrice = reader.IsDBNull(10) ? (decimal?)null : reader.GetDecimal(10), stock = reader.GetInt64(11), videoUrl = reader.IsDBNull(12) ? null : reader.GetString(12), variationName = reader.IsDBNull(13) ? null : reader.GetString(13), variationMode = reader.GetString(14), usesSharedInventory = reader.GetBoolean(15) });
+
         return Ok(items);
     }
 
@@ -72,25 +82,67 @@ public sealed class AdminCommerceController(AppDbContext db, ProductImageService
     public async Task<IActionResult> SaveProduct(ProductInput input, long? id, CancellationToken ct)
     {
         var no = id is null ? NewProductNo() : input.ProductNo?.Trim(); var name = input.ProductName?.Trim();
+
         var video = input.VideoUrl?.Trim(); var mode = input.VariationMode ?? "SINGLE";
+
         if (string.IsNullOrWhiteSpace(no) || no.Length > 30 || string.IsNullOrWhiteSpace(name) || name.Length > 150 || input.CategoryId <= 0 || input.Status is not ("DRAFT" or "ACTIVE" or "INACTIVE") || mode is not ("SINGLE" or "MULTI") || (mode == "MULTI" && string.IsNullOrWhiteSpace(input.VariationName)) || input.Description?.Length > 10000 || (input.VariationName?.Length ?? 0) > 100 || (!string.IsNullOrEmpty(video) && (video.Length > 2048 || !Uri.TryCreate(video, UriKind.Absolute, out var videoUri) || videoUri.Scheme != Uri.UriSchemeHttps)))
             return BadRequest(new { message = "請檢查商品編號、名稱、分類與狀態。" });
+
         await Connection.OpenAsync(ct);
+
         await using var tx = await Connection.BeginTransactionAsync(ct);
-        if(id.HasValue){await using var shared=new NpgsqlCommand("select uses_shared_inventory from cmepms.product where id=@id",Connection,tx);shared.Parameters.AddWithValue("id",id.Value);if((await shared.ExecuteScalarAsync(ct)) is true)return Conflict(new{message="請透過商品規格介面編輯此商品。"});}
-        if (id.HasValue) { await using (var product = new NpgsqlCommand("select category_id from cmepms.product where id=@id for update", Connection, tx)) { product.Parameters.AddWithValue("id", id.Value); var existingCategory = await product.ExecuteScalarAsync(ct); if (existingCategory is null) return NotFound(); if ((long)existingCategory != input.CategoryId) return Conflict(new { message = "商品建立後不可變更主分類或次分類，請重新建立商品。" }); } if (mode == "SINGLE") { await using var count = new NpgsqlCommand("select count(*) from cmepms.product_sku where product_id=@id and is_active", Connection, tx); count.Parameters.AddWithValue("id", id.Value); if ((long)(await count.ExecuteScalarAsync(ct))! > 1) return Conflict(new { message = "此商品已有多個啟用規格，請先停用其他規格。" }); } }
+
+        if (id.HasValue)
+        {
+            await using var shared = new NpgsqlCommand("select uses_shared_inventory from cmepms.product where id=@id", Connection, tx);
+
+            shared.Parameters.AddWithValue("id", id.Value);
+
+            if ((await shared.ExecuteScalarAsync(ct)) is true) return Conflict(new { message = "請透過商品規格介面編輯此商品。" });
+        }
+
+        if (id.HasValue)
+        {
+            await using (var product = new NpgsqlCommand("select category_id from cmepms.product where id=@id for update", Connection, tx))
+            {
+                product.Parameters.AddWithValue("id", id.Value); var existingCategory = await product.ExecuteScalarAsync(ct);
+
+                if (existingCategory is null) return NotFound();
+
+                if ((long)existingCategory != input.CategoryId) return Conflict(new { message = "商品建立後不可變更主分類或次分類，請重新建立商品。" });
+            }
+            if (mode == "SINGLE") { await using var count = new NpgsqlCommand("select count(*) from cmepms.product_sku where product_id=@id and is_active", Connection, tx); count.Parameters.AddWithValue("id", id.Value); if ((long)(await count.ExecuteScalarAsync(ct))! > 1) return Conflict(new { message = "此商品已有多個啟用規格，請先停用其他規格。" }); }
+        }
         if (input.Status == "ACTIVE" && (!id.HasValue || !await CanPublish(id.Value, tx, ct))) return Conflict(new { message = "請先設定至少一個啟用規格，並為每個啟用規格選擇有效稅別及可用物流，才能上架。" });
+
         var sql = id is null
             ? "insert into cmepms.product(product_no,category_id,product_name,description,status,video_url,variation_name,variation_mode) select @no,c.id,@name,@description,@status,@video,@variation,@mode from cmepms.product_category c where c.id=@category and c.is_active returning id"
             : "update cmepms.product p set category_id=@category,product_name=@name,description=@description,status=@status,video_url=@video,variation_name=@variation,variation_mode=@mode,upd_date=now() where p.id=@id and exists(select 1 from cmepms.product_category c where c.id=@category and c.is_active) returning p.id";
+
         await using var cmd = new NpgsqlCommand(sql, Connection, tx);
-        cmd.Parameters.AddWithValue("no", no); cmd.Parameters.AddWithValue("category", input.CategoryId); cmd.Parameters.AddWithValue("name", name); cmd.Parameters.Add("description", NpgsqlTypes.NpgsqlDbType.Text).Value = (object?)input.Description?.Trim() ?? DBNull.Value; cmd.Parameters.AddWithValue("status", input.Status!);
+
+        cmd.Parameters.AddWithValue("no", no);
+        cmd.Parameters.AddWithValue("category", input.CategoryId);
+        cmd.Parameters.AddWithValue("name", name);
+        cmd.Parameters.Add("description", NpgsqlTypes.NpgsqlDbType.Text).Value = (object?)input.Description?.Trim() ?? DBNull.Value;
+        cmd.Parameters.AddWithValue("status", input.Status!);
         cmd.Parameters.Add("video", NpgsqlTypes.NpgsqlDbType.Varchar).Value = string.IsNullOrEmpty(video) ? DBNull.Value : video;
         cmd.Parameters.Add("variation", NpgsqlTypes.NpgsqlDbType.Varchar).Value = string.IsNullOrWhiteSpace(input.VariationName) ? DBNull.Value : input.VariationName.Trim();
         cmd.Parameters.AddWithValue("mode", mode);
+
         if (id.HasValue) cmd.Parameters.AddWithValue("id", id.Value);
-        try { var result = await cmd.ExecuteScalarAsync(ct); if (result is null) return BadRequest(new { message = "商品不存在或分類未啟用。" }); await tx.CommitAsync(ct); return Ok(new { id = (long)result }); }
-        catch (PostgresException ex) when (ex.SqlState == PostgresErrorCodes.UniqueViolation) { return Conflict(new { message = "商品資料發生衝突，請重新載入後再試。" }); }
+
+        try
+        {
+            var result = await cmd.ExecuteScalarAsync(ct);
+
+            if (result is null) return BadRequest(new { message = "商品不存在或分類未啟用。" }); await tx.CommitAsync(ct); return Ok(new { id = (long)result });
+        }
+
+        catch (PostgresException ex) when (ex.SqlState == PostgresErrorCodes.UniqueViolation)
+        {
+            return Conflict(new { message = "商品資料發生衝突，請重新載入後再試。" });
+        }
     }
 
     [HttpPost("products/complete")]
@@ -123,7 +175,7 @@ public sealed class AdminCommerceController(AppDbContext db, ProductImageService
         if (p is null || s is null || input.SkuId <= 0 || string.IsNullOrWhiteSpace(name) || name.Length > 150 || p.CategoryId <= 0 || p.VariationMode != "SINGLE" || p.Status is not ("DRAFT" or "ACTIVE" or "INACTIVE") || string.IsNullOrWhiteSpace(p.Description) || p.Description.Length > 10000 || (p.VariationName?.Length ?? 0) > 100 || (!string.IsNullOrEmpty(video) && (video.Length > 2048 || !Uri.TryCreate(video, UriKind.Absolute, out var videoUri) || videoUri.Scheme != Uri.UriSchemeHttps)) || s.Price < 0 || s.Price > 9999999999.99m || decimal.Round(s.Price, 2) != s.Price || s.StockQty < 0 || !s.ExpectedStockQty.HasValue || s.OriginalPrice is < 0 or > 9999999999.99m || (s.OriginalPrice.HasValue && decimal.Round(s.OriginalPrice.Value, 2) != s.OriginalPrice.Value) || (s.Barcode?.Length ?? 0) > 100 || zone is not ("AMBIENT" or "CHILLED" or "FROZEN") || ids.Length > 100 || ids.Any(x => x <= 0) || ids.Distinct().Count() != ids.Length)
             return BadRequest(new { message = "請檢查商品、價格、庫存及配送設定。" });
         await Connection.OpenAsync(ct); await using var tx = await Connection.BeginTransactionAsync(ct);
-        await using (var shared=new NpgsqlCommand("select uses_shared_inventory from cmepms.product where id=@id",Connection,tx)){shared.Parameters.AddWithValue("id",id);if((await shared.ExecuteScalarAsync(ct)) is true)return Conflict(new{message="請透過商品規格介面編輯此商品。"});}
+        await using (var shared = new NpgsqlCommand("select uses_shared_inventory from cmepms.product where id=@id", Connection, tx)) { shared.Parameters.AddWithValue("id", id); if ((await shared.ExecuteScalarAsync(ct)) is true) return Conflict(new { message = "請透過商品規格介面編輯此商品。" }); }
         await using (var product = new NpgsqlCommand("select category_id from cmepms.product where id=@id for update", Connection, tx)) { product.Parameters.AddWithValue("id", id); var existingCategory = await product.ExecuteScalarAsync(ct); if (existingCategory is null) return NotFound(); if ((long)existingCategory != p.CategoryId) return Conflict(new { message = "商品建立後不可變更主分類或次分類，請重新建立商品。" }); }
         await using (var sku = new NpgsqlCommand("select stock_qty,image_key from cmepms.product_sku where id=@sku and product_id=@product for update", Connection, tx)) { sku.Parameters.AddWithValue("sku", input.SkuId); sku.Parameters.AddWithValue("product", id); await using var r = await sku.ExecuteReaderAsync(ct); if (!await r.ReadAsync(ct)) return NotFound(); var oldImage = r.IsDBNull(1) ? null : r.GetString(1); if (r.GetInt32(0) != s.ExpectedStockQty.Value || !string.Equals(oldImage ?? "", s.ImageKey?.Trim() ?? "", StringComparison.Ordinal)) return Conflict(new { message = "規格庫存或圖片已變更，請重新載入。" }); }
         if (s.IsActive) { await using var count = new NpgsqlCommand("select count(*) from cmepms.product_sku where product_id=@product and id<>@sku and is_active", Connection, tx); count.Parameters.AddWithValue("product", id); count.Parameters.AddWithValue("sku", input.SkuId); if ((long)(await count.ExecuteScalarAsync(ct))! > 0) return Conflict(new { message = "請先停用其他規格，再切換為單一規格。" }); }
@@ -167,11 +219,12 @@ public sealed class AdminCommerceController(AppDbContext db, ProductImageService
         await Connection.OpenAsync(ct); await using var tx = await Connection.BeginTransactionAsync(ct);
         await using (var product = new NpgsqlCommand("select id from cmepms.product where id=@id for update", Connection, tx)) { product.Parameters.AddWithValue("id", id); if (await product.ExecuteScalarAsync(ct) is null) return NotFound(); }
         var keys = new List<string>(); await using (var skus = new NpgsqlCommand("select image_key from cmepms.product_sku where product_id=@id order by id for update", Connection, tx)) { skus.Parameters.AddWithValue("id", id); await using var r = await skus.ExecuteReaderAsync(ct); while (await r.ReadAsync(ct)) if (!r.IsDBNull(0)) keys.Add(r.GetString(0)); }
-        await using (var history = new NpgsqlCommand("select exists(select 1 from cmepms.order_item i join cmepms.product_sku s on s.id=i.sku_id where s.product_id=@id),exists(select 1 from cmepms.order_item i join cmepms.product_sku s on s.id=i.sku_id join cmepms.orders o on o.id=i.order_id where s.product_id=@id and o.order_status<>'CANCELLED')", Connection, tx)) {
+        await using (var history = new NpgsqlCommand("select exists(select 1 from cmepms.order_item i join cmepms.product_sku s on s.id=i.sku_id where s.product_id=@id),exists(select 1 from cmepms.order_item i join cmepms.product_sku s on s.id=i.sku_id join cmepms.orders o on o.id=i.order_id where s.product_id=@id and o.order_status<>'CANCELLED')", Connection, tx))
+        {
             history.Parameters.AddWithValue("id", id); bool hasHistory; bool hasActiveOrders;
-            await using(var reader=await history.ExecuteReaderAsync(ct)){await reader.ReadAsync(ct);hasHistory=reader.GetBoolean(0);hasActiveOrders=reader.GetBoolean(1);}
-            if(hasActiveOrders)return Conflict(new { message = "此商品有未取消的訂單，請先取消訂單。" });
-            if(hasHistory){await using var softDelete=new NpgsqlCommand("update cmepms.product set is_deleted=true,status='INACTIVE',upd_date=now() where id=@id",Connection,tx);softDelete.Parameters.AddWithValue("id",id);await softDelete.ExecuteNonQueryAsync(ct);await tx.CommitAsync(ct);return Ok(new { cleanupFailed=false });}
+            await using (var reader = await history.ExecuteReaderAsync(ct)) { await reader.ReadAsync(ct); hasHistory = reader.GetBoolean(0); hasActiveOrders = reader.GetBoolean(1); }
+            if (hasActiveOrders) return Conflict(new { message = "此商品有未取消的訂單，請先取消訂單。" });
+            if (hasHistory) { await using var softDelete = new NpgsqlCommand("update cmepms.product set is_deleted=true,status='INACTIVE',upd_date=now() where id=@id", Connection, tx); softDelete.Parameters.AddWithValue("id", id); await softDelete.ExecuteNonQueryAsync(ct); await tx.CommitAsync(ct); return Ok(new { cleanupFailed = false }); }
         }
         try
         {
@@ -212,7 +265,7 @@ public sealed class AdminCommerceController(AppDbContext db, ProductImageService
         string mode; bool productActive; await using (var product = new NpgsqlCommand("select variation_mode,status,uses_shared_inventory from cmepms.product where id=@id for update", Connection, tx)) { product.Parameters.AddWithValue("id", productId); await using var r = await product.ExecuteReaderAsync(ct); if (!await r.ReadAsync(ct)) return NotFound(); mode = r.GetString(0); productActive = r.GetString(1) == "ACTIVE"; if (r.GetBoolean(2)) return Conflict(new { message = "請透過商品規格介面調整共用庫存。" }); }
         if (mode == "SINGLE" && input.IsActive) { await using var count = new NpgsqlCommand("select count(*) from cmepms.product_sku where product_id=@product and is_active and (@id is null or id<>@id)", Connection, tx); count.Parameters.AddWithValue("product", productId); count.Parameters.Add("id", NpgsqlTypes.NpgsqlDbType.Bigint).Value = (object?)skuId ?? DBNull.Value; if ((long)(await count.ExecuteScalarAsync(ct))! > 0) return Conflict(new { message = "單一規格商品只能有一個啟用規格。" }); }
         string? previousImage = null; if (skuId.HasValue) { await using var previous = new NpgsqlCommand("select image_key from cmepms.product_sku where id=@id and product_id=@product for update", Connection, tx); previous.Parameters.AddWithValue("id", skuId.Value); previous.Parameters.AddWithValue("product", productId); await using var r = await previous.ExecuteReaderAsync(ct); if (!await r.ReadAsync(ct)) return NotFound(); previousImage = r.IsDBNull(0) ? null : r.GetString(0); }
-        if(skuId.HasValue){await using var check=new NpgsqlCommand("select exists(select 1 from cmepms.product_sku s join cmepms.order_item i on i.sku_id=s.id join cmepms.orders o on o.id=i.order_id where s.id=@id and o.order_status<>'CANCELLED' and s.sku_name<>@name)",Connection,tx);check.Parameters.AddWithValue("id",skuId.Value);check.Parameters.AddWithValue("name",name);if((bool)(await check.ExecuteScalarAsync(ct))!)return Conflict(new{message="此規格有未取消的訂單，請先取消訂單。"});}
+        if (skuId.HasValue) { await using var check = new NpgsqlCommand("select exists(select 1 from cmepms.product_sku s join cmepms.order_item i on i.sku_id=s.id join cmepms.orders o on o.id=i.order_id where s.id=@id and o.order_status<>'CANCELLED' and s.sku_name<>@name)", Connection, tx); check.Parameters.AddWithValue("id", skuId.Value); check.Parameters.AddWithValue("name", name); if ((bool)(await check.ExecuteScalarAsync(ct))!) return Conflict(new { message = "此規格有未取消的訂單，請先取消訂單。" }); }
         await using (var duplicate = new NpgsqlCommand("select exists(select 1 from cmepms.product_sku where product_id=@product and lower(sku_name)=lower(@name) and (@id is null or id<>@id))", Connection, tx)) { duplicate.Parameters.AddWithValue("product", productId); duplicate.Parameters.AddWithValue("name", name); duplicate.Parameters.Add("id", NpgsqlTypes.NpgsqlDbType.Bigint).Value = (object?)skuId ?? DBNull.Value; if ((bool)(await duplicate.ExecuteScalarAsync(ct))!) return Conflict(new { message = "商品已有相同名稱的規格。" }); }
         if (!string.IsNullOrWhiteSpace(input.ImageKey) && imageService.IsOwnedKey(input.ImageKey.Trim())) { if (!skuId.HasValue) return BadRequest(new { message = "請直接上傳規格圖片。" }); await using var own = new NpgsqlCommand("select exists(select 1 from cmepms.product_sku where id=@id and product_id=@product and image_key=@key)", Connection, tx); own.Parameters.AddWithValue("id", skuId.Value); own.Parameters.AddWithValue("product", productId); own.Parameters.AddWithValue("key", input.ImageKey.Trim()); if (!(bool)(await own.ExecuteScalarAsync(ct))!) return Conflict(new { message = "規格圖片已變更，請重新載入。" }); }
         if (input.TaxTypeId.HasValue) { await using var tax = new NpgsqlCommand("select exists(select 1 from cmepms.tax_type where id=@id and is_active)", Connection, tx); tax.Parameters.AddWithValue("id", input.TaxTypeId.Value); if (!(bool)(await tax.ExecuteScalarAsync(ct))!) return BadRequest(new { message = "稅別不存在或已停用。" }); }

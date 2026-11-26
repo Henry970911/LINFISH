@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Security.Cryptography;
 using LinfishAppcation.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -46,10 +47,23 @@ public sealed class OrdersController(AppDbContext db) : ControllerBase
             var quote=await CheckoutCalculator.Calculate(Connection,tx,input.Items,input.ShippingMethodId,true,ct);
             if(quote.Total!=input.ExpectedTotal.Value) return Conflict(new {message="稅額或運費已變更，請重新確認訂單金額。"});
             foreach(var line in quote.Lines){var units=(long)line.Quantity*line.UnitsPerSale;if(units>int.MaxValue)throw new CheckoutException("商品數量超過限制。");await using var stock=new NpgsqlCommand("update cmepms.product_inventory set stock_qty=stock_qty-@qty,upd_date=now() where id=@id and stock_qty>=@qty",Connection,tx);stock.Parameters.AddWithValue("id",line.InventoryId);stock.Parameters.AddWithValue("qty",(int)units);if(await stock.ExecuteNonQueryAsync(ct)!=1)throw new CheckoutException("商品庫存不足，請重新確認購物車。");}
-            var no="LF"+Guid.NewGuid().ToString("N").ToUpperInvariant();
-            await using var order=new NpgsqlCommand("insert into cmepms.orders(order_no,customer_id,order_status,subtotal,shipping_fee,discount_amount,total_amount,recipient_name,recipient_phone,shipping_address,shipping_method_id,shipping_method_name,tax_amount) values(@no,@customer,'PENDING',@subtotal,@shipping,0,@total,@name,@phone,@address,@method,@method_name,@tax) returning id",Connection,tx);
-            order.Parameters.AddWithValue("no",no); order.Parameters.AddWithValue("customer",(long)customerValue); order.Parameters.AddWithValue("subtotal",quote.Subtotal); order.Parameters.AddWithValue("shipping",quote.ShippingFee); order.Parameters.AddWithValue("total",quote.Total); order.Parameters.AddWithValue("name",name); order.Parameters.AddWithValue("phone",phone); order.Parameters.AddWithValue("address",address);order.Parameters.AddWithValue("method",quote.SelectedShippingId);order.Parameters.AddWithValue("method_name",quote.ShippingName);order.Parameters.AddWithValue("tax",quote.TaxAmount);
-            var orderId=(long)(await order.ExecuteScalarAsync(ct))!;
+            var year=TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTimeOffset.UtcNow,"Asia/Taipei").Year;
+            // Serialize number allocation for this year, including installations without an order_no unique index.
+            await using(var allocationLock=new NpgsqlCommand("select pg_advisory_xact_lock(@key)",Connection,tx)) {
+                allocationLock.Parameters.AddWithValue("key",0x4C460000L+year);
+                await allocationLock.ExecuteNonQueryAsync(ct);
+            }
+            string no=""; long orderId=0;
+            await using var order=new NpgsqlCommand("insert into cmepms.orders(order_no,customer_id,order_status,subtotal,shipping_fee,discount_amount,total_amount,recipient_name,recipient_phone,shipping_address,shipping_method_id,shipping_method_name,tax_amount) select @no,@customer,'PENDING',@subtotal,@shipping,0,@total,@name,@phone,@address,@method,@method_name,@tax where not exists(select 1 from cmepms.orders where order_no=@no) on conflict do nothing returning id",Connection,tx);
+            var numberParameter=order.Parameters.Add("no",NpgsqlTypes.NpgsqlDbType.Varchar);
+            order.Parameters.AddWithValue("customer",(long)customerValue); order.Parameters.AddWithValue("subtotal",quote.Subtotal); order.Parameters.AddWithValue("shipping",quote.ShippingFee); order.Parameters.AddWithValue("total",quote.Total); order.Parameters.AddWithValue("name",name); order.Parameters.AddWithValue("phone",phone); order.Parameters.AddWithValue("address",address);order.Parameters.AddWithValue("method",quote.SelectedShippingId);order.Parameters.AddWithValue("method_name",quote.ShippingName);order.Parameters.AddWithValue("tax",quote.TaxAmount);
+            for(var attempt=0;attempt<100;attempt++) {
+                no=$"LF{year}{RandomNumberGenerator.GetInt32(10_000_000):D7}";
+                numberParameter.Value=no;
+                var inserted=await order.ExecuteScalarAsync(ct);
+                if(inserted is long id){orderId=id;break;}
+            }
+            if(orderId==0) return Conflict(new {message="無法產生不重複的訂單編號，請稍後再試。"});
             foreach(var line in quote.Lines) {
                 await using var cmd=new NpgsqlCommand("insert into cmepms.order_item(order_id,sku_id,product_name,sku_name,sku_no,unit_price,quantity,line_amount,tax_name,tax_rate_percent,price_includes_tax,tax_amount) values(@order,@sku,@product,@name,@no,@price,@qty,@amount,@tax_name,@rate,@included,@tax)",Connection,tx);
                 cmd.Parameters.AddWithValue("order",orderId); cmd.Parameters.AddWithValue("sku",line.SkuId); cmd.Parameters.AddWithValue("product",line.ProductName); cmd.Parameters.AddWithValue("name",line.SkuName); cmd.Parameters.AddWithValue("no",line.SkuNo); cmd.Parameters.AddWithValue("price",line.UnitPrice); cmd.Parameters.AddWithValue("qty",line.Quantity); cmd.Parameters.AddWithValue("amount",line.UnitPrice*line.Quantity+line.AdditionalTax);cmd.Parameters.AddWithValue("tax_name",line.TaxName);cmd.Parameters.AddWithValue("rate",line.TaxRate);cmd.Parameters.AddWithValue("included",line.IncludesTax);cmd.Parameters.AddWithValue("tax",line.TaxAmount); await cmd.ExecuteNonQueryAsync(ct);

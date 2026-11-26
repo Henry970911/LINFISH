@@ -42,13 +42,13 @@ import { orderStatusName } from './order-status';
             routerLink="/account"
             routerLinkActive="active"
             [routerLinkActiveOptions]="{ exact: true }"
-            >⌂ 帳戶總覽</a
+            >帳戶總覽</a
           >
-          <a routerLink="/account/orders" routerLinkActive="active">▤ 訂單紀錄</a>
-          <a routerLink="/account/profile" routerLinkActive="active">♙ 個人資料</a>
-          <a routerLink="/account/favorites" routerLinkActive="active">♡ 收藏清單</a>
+          <a routerLink="/account/orders" routerLinkActive="active">訂單紀錄</a>
+          <a routerLink="/account/profile" routerLinkActive="active">個人資料</a>
+          <a routerLink="/account/favorites" routerLinkActive="active">收藏清單</a>
+          <button type="button" (click)="logout()">登出帳戶</button>
         </nav>
-        <button type="button" (click)="logout()">登出帳戶</button>
       </aside>
 
       <main class="account-main">
@@ -81,10 +81,10 @@ import { orderStatusName } from './order-status';
             <div class="panel-head">
               <div>
                 <h3>最近訂單</h3>
-                <p>最近成立的訂單</p>
               </div>
               <a routerLink="/account/orders">全部訂單 →</a>
             </div>
+<<<<<<< HEAD
             @for (order of orders.slice(0, 3); track order.id) {
               <div class="recent-order">
                 <div>
@@ -98,6 +98,27 @@ import { orderStatusName } from './order-status';
               </div>
             } @empty {
               <div class="empty-state empty-state--small"><p>尚無可顯示的訂單。</p></div>
+=======
+            @if (recentPendingOrders.length) {
+              <div class="order-table-wrap">
+                <table class="order-table">
+                  <thead>
+                    <tr><th scope="col">訂單編號</th><th scope="col">狀態</th><th scope="col">金額</th></tr>
+                  </thead>
+                  <tbody>
+                    @for (order of recentPendingOrders; track order.id) {
+                      <tr>
+                        <td><a [routerLink]="['/account/orders', order.id]">{{ order.orderNo }}</a></td>
+                        <td><span class="order-status" [class.is-cancelled]="order.status === 'CANCELLED'">{{ statusName(order.status) }}</span></td>
+                        <td>{{ order.total | currency: 'TWD' : 'NT$' }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            } @else {
+              <div class="empty-state empty-state--small"><p>目前沒有待處理的訂單。</p></div>
+>>>>>>> fc81e8ed (20261126 版本修改)
             }
           </div>
         } @else if (section === 'orders') {
@@ -223,6 +244,13 @@ export class AccountPageComponent implements OnInit {
   get activeOrderCount(): number {
     return this.orders.filter((order) => !['COMPLETED', 'CANCELLED'].includes(order.status)).length;
   }
+<<<<<<< HEAD
+=======
+
+  get recentPendingOrders(): OrderSummary[] {
+    return this.orders.filter((order) => order.status === 'PENDING').slice(0, 3);
+  }
+>>>>>>> fc81e8ed (20261126 版本修改)
 
   get memberInitial(): string {
     return this.displayName.trim().charAt(0).toUpperCase() || '會';

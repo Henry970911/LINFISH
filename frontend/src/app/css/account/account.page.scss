@@ -2,6 +2,28 @@
   color: #9a3026;
 }
 
+<<<<<<< HEAD
+=======
+.account-sidebar nav a {
+  font-size: 13px;
+}
+
+.account-sidebar nav button {
+  width: 100%;
+  padding: 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+>>>>>>> fc81e8ed (20261126 版本修改)
 input[readonly] {
   background: #f6f4ef;
   cursor: default;
@@ -33,12 +55,20 @@ input[readonly] {
   min-width: 180px;
 }
 .order-table a,
+<<<<<<< HEAD
 .recent-order a,
+=======
+>>>>>>> fc81e8ed (20261126 版本修改)
 .panel-head > a {
   color: var(--deep);
   font-weight: 700;
 }
+<<<<<<< HEAD
 .order-table td:last-child {
+=======
+.order-table td:last-child,
+.recent-orders .order-table th:last-child {
+>>>>>>> fc81e8ed (20261126 版本修改)
   text-align: right;
 }
 .order-status {
@@ -54,6 +84,7 @@ input[readonly] {
   background: #eef1ef;
   color: #6d7873;
 }
+<<<<<<< HEAD
 .recent-order {
   display: flex;
   justify-content: space-between;
@@ -67,6 +98,8 @@ input[readonly] {
   color: #82918c;
   margin-right: 8px;
 }
+=======
+>>>>>>> fc81e8ed (20261126 版本修改)
 .visually-hidden {
   position: absolute;
   width: 1px;

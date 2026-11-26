@@ -337,15 +337,9 @@ public sealed class AuthController(
         && member.Status == 1
         && member.DeleteRequestedAt is null;
 
-    private static string NormalizeEmail(string? email) =>
-        email?.Trim().ToLowerInvariant() ?? string.Empty;
+    private static string NormalizeEmail(string? email) => email?.Trim().ToLowerInvariant() ?? string.Empty;
 
-    private static string? Limit(string? value, int maximumLength) =>
-        string.IsNullOrWhiteSpace(value)
-            ? null
-            : value.Length <= maximumLength
-                ? value
-                : value[..maximumLength];
+    private static string? Limit(string? value, int maximumLength) => string.IsNullOrWhiteSpace(value) ? null : value.Length <= maximumLength ? value : value[..maximumLength];
 
     private static object InvalidCredentials() => new
     {
