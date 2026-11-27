@@ -28,7 +28,8 @@
               {
                 "glob": "**/*",
                 "input": "public"
-              }
+              },
+              { "glob": "Lobby_*.jpg", "input": "image", "output": "images/lobby" }
             ],
             "styles": [
               "src/app/css/global/styles.scss"

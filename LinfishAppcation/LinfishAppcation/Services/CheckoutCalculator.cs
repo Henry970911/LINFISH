@@ -23,10 +23,11 @@ public static class CheckoutCalculator
   }
   var lines=new List<CheckoutLine>();
   foreach(var item in items.OrderBy(x=>x.SkuId)){
+   // 2026-11-27：結帳數量與商城皆由實際庫存及每組數量計算。
    var sql="""
-     select p.product_name,s.sku_name,s.sku_no,s.price,s.stock_qty,t.id,t.name,t.rate_percent,t.price_includes_tax,t.allow_mixed,coalesce(s.temperature_zone,'AMBIENT'),
+     select p.product_name,s.sku_name,s.sku_no,s.price,coalesce(inv.stock_qty / nullif(s.units_per_sale,0),0)::integer,t.id,t.name,t.rate_percent,t.price_includes_tax,t.allow_mixed,coalesce(s.temperature_zone,'AMBIENT'),
        array(select m.shipping_method_id from cmepms.sku_shipping_method m where m.sku_id=s.id order by m.shipping_method_id),s.inventory_id,s.units_per_sale
-     from cmepms.product_sku s join cmepms.product p on p.id=s.product_id join cmepms.product_category c on c.id=p.category_id
+     from cmepms.product_sku s join cmepms.product_inventory inv on inv.id=s.inventory_id join cmepms.product p on p.id=s.product_id join cmepms.product_category c on c.id=p.category_id
        join cmepms.tax_type t on t.id=s.tax_type_id
      where s.id=@id and s.is_active and p.status='ACTIVE' and c.is_active and t.is_active
      """+(lockRows?" for share of p,c,t":"");

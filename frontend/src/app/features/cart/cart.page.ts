@@ -36,7 +36,7 @@ import { StoreService } from '../../core/services/store.service';
                     >{{ item.product.emoji }}</a
                   >
                   <div class="cart-item__name">
-                    <small>{{ item.product.skuName }}</small><a
+                    <small>{{ item.product.skuName }}</small>@if(item.quantity > item.product.stock){<small role="alert">庫存已變更，剩餘 {{ item.product.stock }} 組，請調整數量。</small>}<a
                       [routerLink]="['/product', item.product.slug]"
                       >{{ item.product.name }}</a
                     ><b>{{ item.product.price | currency: 'TWD' : 'NT$' : '1.0-0' }}</b
@@ -54,6 +54,7 @@ import { StoreService } from '../../core/services/store.service';
                     ><button
                       type="button"
                       (click)="store.updateQuantity(item.product.skuId!, item.quantity + 1)"
+                      [disabled]="item.quantity >= item.product.stock"
                     >
                       ＋
                     </button>
@@ -73,8 +74,8 @@ import { StoreService } from '../../core/services/store.service';
                 ><b>{{ store.cartSubtotal() | currency: 'TWD' : 'NT$' : '1.0-0' }}</b>
               </div>
               <p>運費與稅額將依商品規格與配送方式在結帳時計算。</p>
-              <a class="btn btn--coral btn--block" routerLink="/checkout">前往結帳</a
-              ><small class="secure-note">🔒 下一步填寫收件與付款資料</small>
+              @if(store.cartStockValid()){<a class="btn btn--coral btn--block" routerLink="/checkout">前往結帳</a>} @else {<p role="alert">商品庫存已變更，請先調整購物車。</p>}<span
+              ><small class="secure-note">🔒 下一步填寫收件與付款資料</small></span>
             </aside>
           </div>
         } @else {

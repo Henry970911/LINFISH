@@ -2,7 +2,8 @@ import { CurrencyPipe } from '@angular/common';
 import { Component, OnDestroy, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Subscription } from 'rxjs';
+import { InventoryUpdatesService } from '../../core/services/inventory-updates.service';
 import { environment } from '../../../environments/environment';
 import { InventoryDraft, ProductSpecificationsComponent } from './product-specifications.component';
 
@@ -105,7 +106,8 @@ interface PendingImage {
   standalone: true,
   imports: [FormsModule, CurrencyPipe, ProductSpecificationsComponent],
   template: `
-    <div class="admin-page-head">
+    <!-- 2026-11-27：商品列表頁頂部間距比照訂單管理。 -->
+    <div class="admin-page-head" [class.product-list-heading]="!editorOpen">
       <div>
         <h1>{{ editorOpen ? (editingId ? '編輯商品' : '新增商品') : '商品列表' }}</h1>
       </div>
@@ -523,6 +525,8 @@ interface PendingImage {
 })
 export class AdminCommercePageComponent implements OnDestroy {
   private http = inject(HttpClient);
+  private readonly inventoryUpdates = inject(InventoryUpdatesService);
+  private inventorySubscription?: Subscription;
   private base = `${environment.apiBaseUrl}/admin/commerce`;
   mainCategories = signal<MainCategory[]>([]);
   categories = signal<Category[]>([]);
@@ -602,8 +606,14 @@ export class AdminCommercePageComponent implements OnDestroy {
       temperatureZone: 'AMBIENT',
       shippingMethodIds: [],
     };
+  // 2026-11-27：付款庫存變更時更新列表，不覆蓋編輯中的表單。
   constructor() {
     void this.refresh();
+    this.inventorySubscription = this.inventoryUpdates.changes.subscribe(() => void this.refreshInventoryList());
+  }
+  private async refreshInventoryList() {
+    try { const products = await firstValueFrom(this.http.get<Product[]>(this.base + '/products')); this.products.set(products); }
+    catch { /* 保留目前列表，下次通知或重新整理再更新。 */ }
   }
   async refresh() {
     try {
@@ -1270,6 +1280,7 @@ export class AdminCommercePageComponent implements OnDestroy {
     this.pendingImages.set([]);
   }
   ngOnDestroy() {
+    this.inventorySubscription?.unsubscribe();
     this.clearPending();
   }
   private async processPending(productId: number): Promise<boolean> {

@@ -10,7 +10,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
       <a routerLink="/guides">← 水族小教室</a><span class="eyebrow">BEGINNER'S GUIDE</span>
       <h1>{{ title }}</h1>
       <p>{{ lead }}</p>
-      <div><span>LINFISH 編輯部</span><span>2026/11/18</span><span>閱讀時間 5 分鐘</span></div>
+      <div><span>魚軒水族館 編輯部</span><span>2026/11/18</span><span>閱讀時間 5 分鐘</span></div>
     </header>
     <div class="guide-cover">{{ icon }}<small>文章主視覺預留區</small></div>
     <div class="prose guide-body">

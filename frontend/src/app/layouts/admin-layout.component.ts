@@ -16,10 +16,10 @@ interface AdminNavigationItem {
   template: `
     <div class="ops-shell">
       <aside class="ops-rail" aria-label="管理功能選單">
-        <a class="ops-brand" routerLink="/admin" aria-label="LINFISH 管理首頁">
+        <a class="ops-brand" routerLink="/admin" aria-label="魚軒水族館 管理首頁">
           <img class="ops-brand__mark" src="images/linfish-logo.jpg" alt="" width="42" height="42">
           <span class="ops-brand__copy">
-            <b>LINFISH</b>
+            <b>魚軒水族館</b>
             <small>Operations</small>
           </span>
         </a>
@@ -83,7 +83,7 @@ interface AdminNavigationItem {
           <div class="ops-topbar__context">
             <span class="ops-status-dot"></span>
             <div>
-              <small>LINFISH SYSTEM</small>
+              <small>魚軒水族館系統</small>
               <b>營運管理平台</b>
             </div>
           </div>

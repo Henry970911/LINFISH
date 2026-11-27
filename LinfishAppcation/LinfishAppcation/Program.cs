@@ -145,6 +145,8 @@ builder.Services
 builder.Services.AddScoped<IPasswordHasher<Member>, PasswordHasher<Member>>();
 builder.Services.AddHttpClient();
 builder.Services.AddHttpContextAccessor();
+// 2026-11-27：通知前後台付款後庫存變更。
+builder.Services.AddSingleton<InventoryNotifications>();
 builder.Services.AddScoped<ProductImageService>();
 builder.Services.AddScoped<StorageCleanupService>();
 builder.Services.AddHostedService<StorageCleanupWorker>();

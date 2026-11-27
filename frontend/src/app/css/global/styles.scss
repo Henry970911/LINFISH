@@ -220,3 +220,21 @@ button { color: inherit; }
 
 /* 共用魚軒標誌 */
 .brand__mark { object-fit: contain; border-radius: 4px; background: #fff; flex-shrink: 0; }
+
+
+/* 首頁門市照片輪播 */
+.lobby-carousel { position: relative; width: 100%; aspect-ratio: 1260 / 500; overflow: hidden; background: #102f2c; }
+.lobby-carousel__image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .6s ease; }
+.lobby-carousel__image:first-child { object-position: 50% 33%; }
+.lobby-carousel__image.is-active { opacity: 1; }
+.lobby-carousel__arrow { position: absolute; top: 50%; z-index: 1; width: 52px; height: 72px; transform: translateY(-50%); border: 0; background: rgba(0, 0, 0, .2); color: white; font: 300 56px/1 Arial, sans-serif; cursor: pointer; }
+.lobby-carousel__arrow--previous { left: 0; }
+.lobby-carousel__arrow--next { right: 0; }
+.lobby-carousel__arrow:hover { background: rgba(0, 0, 0, .45); }
+.lobby-carousel__dots { position: absolute; z-index: 1; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; gap: 4px; }
+.lobby-carousel__dot { width: 28px; height: 28px; padding: 5px; border: 0; background: transparent; cursor: pointer; }
+.lobby-carousel__dot::after { content: ''; display: block; width: 18px; height: 18px; border-radius: 50%; background: white; box-shadow: 0 1px 4px #0008; }
+.lobby-carousel__dot.is-active::after { background: #53bc72; }
+.lobby-carousel button:focus-visible { outline: 3px solid #fff; outline-offset: -3px; }
+@media (max-width: 600px) { .lobby-carousel { aspect-ratio: 4 / 3; } .lobby-carousel__arrow { width: 40px; height: 60px; font-size: 46px; } }
+@media (prefers-reduced-motion: reduce) { .lobby-carousel__image { transition: none; } }

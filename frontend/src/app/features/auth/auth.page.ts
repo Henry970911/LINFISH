@@ -13,7 +13,7 @@ import { AuthService } from '../../core/services/auth.service';
       <div class="auth-visual">
         <a class="brand brand--light" routerLink="/">
           <img class="brand__mark" src="images/linfish-logo.jpg" alt="" width="42" height="42">
-          <span><b>LINFISH</b><small>讓水族生活更簡單</small></span>
+          <span><b>魚軒水族館</b><small>讓水族生活更簡單</small></span>
         </a>
         <div class="line-contact">
           <div class="line-contact__intro"><span class="eyebrow eyebrow--light">STAY CONNECTED</span><h1>與魚軒保持聯繫</h1><p>加入官方 LINE 諮詢，或加入社群掌握最新活動。</p></div>
@@ -28,7 +28,7 @@ import { AuthService } from '../../core/services/auth.service';
             </section>
           </div>
         </div>
-        <small>LINFISH MEMBERSHIP · 2026</small>
+        <small>魚軒水族館會員 · 2026</small>
       </div>
 
       <div class="auth-form-wrap">

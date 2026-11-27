@@ -9,7 +9,7 @@ import { RouterLink } from '@angular/router';
     <section class="newsletter">
       <div class="container newsletter__inner">
         <div>
-          <span class="eyebrow">LINFISH LETTER</span>
+          <span class="eyebrow">魚軒水族館電子報</span>
           <h2>把新魚、新知和優惠送進信箱</h2>
           <p>每兩週一封，不打擾，只分享真正有用的水族內容。</p>
         </div>
@@ -28,7 +28,7 @@ import { RouterLink } from '@angular/router';
         <div class="footer-brand">
           <a class="brand brand--footer" routerLink="/"
             ><img class="brand__mark" src="images/linfish-logo.jpg" alt="" width="42" height="42"
-            ><span><b>魚軒水族量販店</b><small>讓水族生活更簡單</small></span></a
+            ><span><b>魚軒水族館</b><small>讓水族生活更簡單</small></span></a
           >
           <p>以清楚的飼養資訊、穩定的個體狀態與細心包裝，陪你建立喜歡的水中風景。</p>
           <div class="social-row"><a href="https://lin.ee/lXZexVN" target="_blank" rel="noopener noreferrer" aria-label="官方 LINE">LINE</a><a href="https://www.facebook.com/profile.php?id=61561628631885&locale=zh_TW" target="_blank" rel="noopener noreferrer" aria-label="Facebook">FB</a><a href="https://www.instagram.com/yuxuan.aquarium/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">IG</a></div>
@@ -58,7 +58,7 @@ import { RouterLink } from '@angular/router';
       </div>
       <div></div>
       <div class="container footer-bottom">
-        <span>© 2026 LINFISH. Prototype storefront.</span><span>隱私權政策 · 網站使用條款</span>
+        <span>© 2026 魚軒水族館</span><span>隱私權政策 · 網站使用條款</span>
       </div>
     </footer>
   `,

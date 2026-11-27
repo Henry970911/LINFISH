@@ -340,3 +340,8 @@
 h5.product-section-title {
   margin: 0 0 16px;
 }
+
+/* 2026-11-27：商品列表頁頂部及標題間距與訂單管理一致。 */
+.product-list-heading { margin-top: -12px; margin-bottom: 18px; }
+.product-list-heading h1 { margin: 0; }
+@media (max-width: 700px) { .product-list-heading { margin-top: -5px; } }

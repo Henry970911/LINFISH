@@ -10,7 +10,7 @@ import { RouterLink } from '@angular/router';
     <section class="ops-dashboard">
       <header class="ops-dashboard__head">
         <div>
-          <span class="ops-eyebrow">LINFISH OPERATIONS</span>
+          <span class="ops-eyebrow">魚軒水族館營運管理</span>
           <h1>管理控制中心</h1>
         </div>
         <div class="ops-date">
@@ -24,7 +24,7 @@ import { RouterLink } from '@angular/router';
           <span class="ops-database-icon">▤</span>
           <div>
             <small>PRIMARY OPERATIONS</small>
-            <h2>LINFISH 管理系統</h2>
+            <h2>魚軒水族館 管理系統</h2>
             <p>管理者身分已通過後端角色驗證。</p>
           </div>
         </div>

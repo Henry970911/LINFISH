@@ -10,6 +10,7 @@ using NpgsqlTypes;
 namespace LinfishAppcation.Controllers;
 
 [ApiController, Route("api/admin/inventory-products"), Authorize(Roles = "admin")]
+// 2026-11-27：商品訂單關聯改以 stat 判斷是否取消。
 public sealed class ProductInventoryController(AppDbContext db) : ControllerBase
 {
     private NpgsqlConnection Connection => (NpgsqlConnection)db.Database.GetDbConnection();
@@ -22,7 +23,9 @@ public sealed class ProductInventoryController(AppDbContext db) : ControllerBase
 
     private static readonly IReadOnlyDictionary<string, string[]> Keys = new Dictionary<string, string[]> {
         ["FISI"] = ["lengthCm", "color"],
-        ["AQUI"] = ["size", "cc", "watt", "litre", "foot", "singleHole", "doubleHole"],
+        // 舊版：["AQUI"] = ["size", "cc", "watt", "litre", "foot", "singleHole", "doubleHole"],
+        // 型號改以文字輸入，舊單孔與雙孔欄位仍可讀寫。
+        ["AQUI"] = ["size", "cc", "watt", "litre", "foot", "singleHole", "doubleHole", "model"],
         ["FEEI"] = ["pellet", "size", "gLargePellet", "gSmallPellet", "mlLargePellet", "mlSmallPellet", "kgLargePellet", "kgSmallPellet", "ml", "g", "kg"]
     };
     private static readonly string[] Colors = ["黑色", "紅色", "彩色", "白色", "橘色", "黃色", "藍色", "綠色"];
@@ -30,7 +33,7 @@ public sealed class ProductInventoryController(AppDbContext db) : ControllerBase
     private static readonly string[] Pellets = ["大顆粒", "小顆粒"];
     private static bool IsSet(JsonElement value) => value.ValueKind is not (JsonValueKind.Null or JsonValueKind.Undefined);
     private static string AttributeLabel(KeyValuePair<string,object> x) => x.Key switch {
-        "lengthCm"=>$"{x.Value}cm", "color" or "size" or "pellet"=>$"{x.Value}", "pack"=>$"{x.Value}包", "bottle"=>$"{x.Value}瓶",
+        "lengthCm"=>$"{x.Value}cm", "color" or "size" or "pellet" or "model"=>$"{x.Value}", "pack"=>$"{x.Value}包", "bottle"=>$"{x.Value}瓶",
         "largePelletPack"=>$"{x.Value}包（大顆粒）", "smallPelletPack"=>$"{x.Value}包（小顆粒）",
         "singleHole"=>$"{x.Value}型（單孔）", "doubleHole"=>$"{x.Value}型（雙孔）", "watt"=>$"{x.Value}W", "litre"=>$"{x.Value}L", "foot"=>$"{x.Value}尺",
         "gLargePellet"=>$"{x.Value}g（大顆粒）", "gSmallPellet"=>$"{x.Value}g（小顆粒）", "mlLargePellet"=>$"{x.Value}ml（大顆粒）", "mlSmallPellet"=>$"{x.Value}ml（小顆粒）",
@@ -78,14 +81,17 @@ public sealed class ProductInventoryController(AppDbContext db) : ControllerBase
         var existingSku = new Dictionary<long,(long Inventory,int Units)>();
         await using(var query=new NpgsqlCommand("select id,inventory_id,units_per_sale from cmepms.product_sku where product_id=@id and not is_deleted order by id for update",Connection,tx)) {query.Parameters.AddWithValue("id",productId);await using var r=await query.ExecuteReaderAsync(ct);while(await r.ReadAsync(ct))existingSku.Add(r.GetInt64(0),(r.GetInt64(1),r.GetInt32(2)));}
         var activeSku = new HashSet<long>();
-        await using(var query=new NpgsqlCommand("select distinct oi.sku_id from cmepms.order_item oi join cmepms.orders o on o.id=oi.order_id join cmepms.product_sku s on s.id=oi.sku_id where s.product_id=@id and o.order_status<>'CANCELLED'",Connection,tx)) {query.Parameters.AddWithValue("id",productId);await using var r=await query.ExecuteReaderAsync(ct);while(await r.ReadAsync(ct))activeSku.Add(r.GetInt64(0));}
+        await using(var query=new NpgsqlCommand("select distinct oi.sku_id from cmepms.order_item oi join cmepms.orders o on o.id=oi.order_id join cmepms.product_sku s on s.id=oi.sku_id where s.product_id=@id and o.stat is distinct from 'ZZ'",Connection,tx)) {query.Parameters.AddWithValue("id",productId);await using var r=await query.ExecuteReaderAsync(ct);while(await r.ReadAsync(ct))activeSku.Add(r.GetInt64(0));}
         var seen = new HashSet<string>(StringComparer.Ordinal); var keptStocks=new HashSet<long>(); var keptSkus=new HashSet<long>(); bool pack=false,bottle=false;
         foreach(var row in input.Stocks) {
             var attrs=new SortedDictionary<string,object>(StringComparer.Ordinal);
             foreach(var (key,value) in row.Attributes??[]) {
                 if(!IsSet(value))continue;
                 if(!allowed.Contains(key))return BadRequest(new{message="規格不屬於商品分類。"});
-                if(key is "color" or "size" or "pellet") {if(value.ValueKind!=JsonValueKind.String || !(key=="color"?Colors:key=="pellet"?Pellets:Sizes).Contains(value.GetString()!))return BadRequest(new{message="規格選項不正確。"});attrs.Add(key,value.GetString()!);}
+                // 舊版只允許固定選項；型號需要保留英文、數字與廠商原有寫法。
+                // if(key is "color" or "size" or "pellet") { ... }
+                if(key == "model") { var model=value.ValueKind==JsonValueKind.String?value.GetString()?.Trim():null; if(string.IsNullOrEmpty(model)||model.Length>100)return BadRequest(new{message="請輸入有效型號。"});attrs.Add(key,model); }
+                else if(key is "color" or "size" or "pellet") {if(value.ValueKind!=JsonValueKind.String || !(key=="color"?Colors:key=="pellet"?Pellets:Sizes).Contains(value.GetString()!))return BadRequest(new{message="規格選項不正確。"});attrs.Add(key,value.GetString()!);}
                 else {if(value.ValueKind!=JsonValueKind.Number || !value.TryGetDecimal(out var n) || n<=0 || n>100000000 || (key=="lengthCm" && (n<0.1m||n>500m||decimal.Round(n,1)!=n)))return BadRequest(new{message="規格數值不正確。"});attrs.Add(key,n);}
                 if(key is "pack" or "largePelletPack" or "smallPelletPack")pack=true;if(key=="bottle")bottle=true;
             }
@@ -151,7 +157,13 @@ public sealed class ProductInventoryController(AppDbContext db) : ControllerBase
             foreach (var (key, value) in attrs) {
                 if (!IsSet(value)) continue;
                 if (!allowed.Contains(key)) return BadRequest(new { message = "規格不屬於選擇的商品分類。" });
-                if (key is "color" or "size" or "pellet") {
+                // 舊版僅有固定選項或數字；型號改支援文字並維持舊規格相容。
+                // if (key is "color" or "size" or "pellet") { ... }
+                if (key == "model") {
+                    var model = value.ValueKind == JsonValueKind.String ? value.GetString()?.Trim() : null;
+                    if (string.IsNullOrEmpty(model) || model.Length > 100) return BadRequest(new { message = "請輸入有效型號。" });
+                    values.Add(key, model);
+                } else if (key is "color" or "size" or "pellet") {
                     if (value.ValueKind != JsonValueKind.String) return BadRequest(new { message = "規格選項不正確。" });
                     var selected = value.GetString()!;
                     if (!(key == "color" ? Colors : key == "pellet" ? Pellets : Sizes).Contains(selected)) return BadRequest(new { message = "規格選項不正確。" });
@@ -168,7 +180,7 @@ public sealed class ProductInventoryController(AppDbContext db) : ControllerBase
             if (stock.Options!.Any(o => o.Units < 1 || o.Price < 0 || o.Price > 9999999999.99m || decimal.Round(o.Price, 2) != o.Price || o.SuggestedPrice is < 0 or > 9999999999.99m || (o.SuggestedPrice.HasValue && decimal.Round(o.SuggestedPrice.Value, 2) != o.SuggestedPrice.Value) || o.TemperatureZone is not ("AMBIENT" or "CHILLED" or "FROZEN") || (o.ShippingMethodIds ?? []).Any(x => x <= 0) || (o.ShippingMethodIds ?? []).Distinct().Count() != (o.ShippingMethodIds?.Length ?? 0)) || stock.Options!.Select(x => x.Units).Distinct().Count() != stock.Options!.Count)
                 return BadRequest(new { message = "請檢查購買數量、售價及物流設定。" });
             string Label(KeyValuePair<string, object> x) => x.Key switch {
-                "lengthCm" => $"{x.Value}cm", "color" or "size" or "pellet" => $"{x.Value}",
+                "lengthCm" => $"{x.Value}cm", "color" or "size" or "pellet" or "model" => $"{x.Value}",
                 "largePelletPack" => $"{x.Value}包（大顆粒）", "smallPelletPack" => $"{x.Value}包（小顆粒）",
                 "pack" => $"{x.Value}包", "bottle" => $"{x.Value}瓶", "singleHole" => $"{x.Value}型（單孔）", "doubleHole" => $"{x.Value}型（雙孔）",
                 "watt" => $"{x.Value}W", "litre" => $"{x.Value}L", "foot" => $"{x.Value}尺",

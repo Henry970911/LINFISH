@@ -20,7 +20,7 @@ import { DeliveryNoticeComponent } from '../../shared/components/delivery-notice
       <div class="container info-layout">
         <aside>
           <b>資訊導覽</b>
-          <a routerLink="/info/about">關於 LINFISH</a>
+          <a routerLink="/info/about">關於 魚軒水族館</a>
           <a routerLink="/info/shipping">付款與配送</a>
           <a routerLink="/info/returns">到貨與售後</a>
           <a routerLink="/info/vip">會員權益</a>
@@ -30,7 +30,7 @@ import { DeliveryNoticeComponent } from '../../shared/components/delivery-notice
           @if (kind === 'about') {
             <h2>讓每個人都能安心開始水族生活</h2>
             <p>
-              LINFISH
+              魚軒水族館
               是為水族零售品牌準備的示範商城。我們把複雜的飼養資訊整理得清楚、可理解，讓選購不再只靠運氣。
             </p>
             <blockquote>好的水族店，不只是把商品放上架，而是把「適不適合」說清楚。</blockquote>

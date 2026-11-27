@@ -1,5 +1,4 @@
-import { CurrencyPipe } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { StoreService } from '../../core/services/store.service';
 import { ProductCardComponent } from '../../shared/components/product-card.component';
@@ -7,49 +6,25 @@ import { ProductCardComponent } from '../../shared/components/product-card.compo
 @Component({
   selector: 'app-home-page',
   standalone: true,
-  imports: [CurrencyPipe, ProductCardComponent, RouterLink],
+  imports: [ProductCardComponent, RouterLink],
   template: `
-    <section class="hero">
-      <div class="hero__watermark">AQUATIC<br />LIVING</div>
-      <div class="hero__bubbles" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-      <div class="container hero__inner">
-        <div class="hero__copy">
-          <span class="eyebrow eyebrow--light">WEEKLY SELECTION · 11/18</span>
-          <h1>把喜歡的水中風景，<br /><em>好好帶回家。</em></h1>
-          <p>從魚隻狀態、飼養資訊到出貨包裝，每個細節都替你先想一步。</p>
-          <div class="hero__actions">
-            <a class="btn btn--coral" routerLink="/catalog">探索本週新品</a
-            ><a class="text-link text-link--light" routerLink="/guides"
-              >第一次養魚？從這裡開始 <span>→</span></a
-            >
-          </div>
-          <div class="hero__proof">
-            <div><b>48h</b><span>穩定觀察後上架</span></div>
-            <div><b>1:1</b><span>到貨狀況協助</span></div>
-            <div><b>7 days</b><span>每日營業服務</span></div>
-          </div>
-        </div>
-        <div class="hero__visual">
-          <div class="tank-card">
-            <span class="tank-card__label">EDITOR'S PICK</span>
-            <div class="tank-scene">
-              <span class="fish fish--one">🐠</span><span class="fish fish--two">🐟</span
-              ><span class="plant">🌿</span><span class="plant plant--two">🌿</span>
-            </div>
-            <div class="tank-card__info">
-              <div>
-                <small>本週主打</small>
-                <h3>黃金檸檬琴尾茉莉</h3>
-              </div>
-              @if (store.isMember()) {
-                <b>{{ 180 | currency: 'TWD' : 'NT$' : '1.0-0' }}</b>
-              } @else {
-                <a routerLink="/login">會員價</a>
-              }
-            </div>
-          </div>
-          <span class="hero-note">健康觀察紀錄<br />隨出貨批次更新</span>
-        </div>
+    <section class="lobby-carousel" aria-label="門市照片輪播" aria-roledescription="輪播"
+      (mouseenter)="pause()" (mouseleave)="resume()" (focusin)="pause()" (focusout)="onFocusOut($event)">
+      @for (slide of slides; track slide; let i = $index) {
+        <img class="lobby-carousel__image" [class.is-active]="activeSlide() === i"
+          [src]="slide" [alt]="activeSlide() === i ? '魚軒水族門市照片 ' + (i + 1) : ''"
+          [attr.aria-hidden]="activeSlide() !== i" [attr.fetchpriority]="i === 0 ? 'high' : 'low'" />
+      }
+      <button class="lobby-carousel__arrow lobby-carousel__arrow--previous" type="button"
+        aria-label="上一張照片" (click)="move(-1)">‹</button>
+      <button class="lobby-carousel__arrow lobby-carousel__arrow--next" type="button"
+        aria-label="下一張照片" (click)="move(1)">›</button>
+      <div class="lobby-carousel__dots" aria-label="選擇照片">
+        @for (slide of slides; track slide; let i = $index) {
+          <button type="button" class="lobby-carousel__dot" [class.is-active]="activeSlide() === i"
+            [attr.aria-label]="'顯示第 ' + (i + 1) + ' 張照片'"
+            [attr.aria-current]="activeSlide() === i ? 'true' : null" (click)="activeSlide.set(i)"></button>
+        }
       </div>
     </section>
 
@@ -127,7 +102,7 @@ import { ProductCardComponent } from '../../shared/components/product-card.compo
           </div>
         </div>
         <div class="story-copy">
-          <span class="eyebrow">WHY LINFISH</span>
+          <span class="eyebrow">認識魚軒水族館</span>
           <h2>不是只把魚賣出去，<br />而是陪牠好好住進新家。</h2>
           <p>
             我們相信，好的水族體驗從「理解」開始。每個商品頁都會整理適合水質、溫度、成體尺寸與混養建議，讓你在帶回家之前，就知道該怎麼照顧。
@@ -175,4 +150,19 @@ import { ProductCardComponent } from '../../shared/components/product-card.compo
 })
 export class HomePageComponent {
   readonly store = inject(StoreService);
+  readonly slides = Array.from({ length: 5 }, (_, index) => `/images/lobby/Lobby_${index + 1}.jpg`);
+  readonly activeSlide = signal(0);
+  private timer?: ReturnType<typeof setInterval>;
+  private readonly reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  constructor() {
+    this.resume();
+    inject(DestroyRef).onDestroy(() => this.pause());
+  }
+  move(offset: number): void { this.activeSlide.update(index => (index + offset + this.slides.length) % this.slides.length); }
+  pause(): void { clearInterval(this.timer); this.timer = undefined; }
+  resume(): void { if (!this.timer && !this.reducedMotion.matches) this.timer = setInterval(() => this.move(1), 5000); }
+  onFocusOut(event: FocusEvent): void {
+    if (!(event.currentTarget as HTMLElement).contains(event.relatedTarget as Node | null)) this.resume();
+  }
 }

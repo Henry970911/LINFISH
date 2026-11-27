@@ -16,7 +16,7 @@ import { orderStatusName } from './order-status';
     <section class="account-hero">
       <div class="container">
         <div>
-          <span class="eyebrow eyebrow--light">MY LINFISH</span>
+          <span class="eyebrow eyebrow--light">我的會員中心</span>
           <h1>午安，{{ displayName }}</h1>
           <p>照顧好魚缸，也照顧好每一次選擇。</p>
         </div>
@@ -82,7 +82,7 @@ import { orderStatusName } from './order-status';
               <div>
                 <h3>最近訂單</h3>
               </div>
-              <a routerLink="/account/orders">全部訂單 →</a>
+              <a routerLink="/account/orders">訂單紀錄 →</a>
             </div>
             @if (recentPendingOrders.length) {
               <div class="order-table-wrap">
@@ -94,7 +94,7 @@ import { orderStatusName } from './order-status';
                     @for (order of recentPendingOrders; track order.id) {
                       <tr>
                         <td><a [routerLink]="['/account/orders', order.id]">{{ order.orderNo }}</a></td>
-                        <td><span class="order-status" [class.is-cancelled]="order.status === 'CANCELLED'">{{ statusName(order.status) }}</span></td>
+                        <td><span class="order-status" [class.is-cancelled]="order.stat === 'ZZ'">{{ statusName(order.stat) }}</span></td>
                         <td>{{ order.total | currency: 'TWD' : 'NT$' }}</td>
                       </tr>
                     }
@@ -102,7 +102,7 @@ import { orderStatusName } from './order-status';
                 </table>
               </div>
             } @else {
-              <div class="empty-state empty-state--small"><p>目前沒有待處理的訂單。</p></div>
+              <div class="empty-state empty-state--small"><p>目前沒有進行中的訂單。</p></div>
             }
           </div>
         } @else if (section === 'orders') {
@@ -111,7 +111,7 @@ import { orderStatusName } from './order-status';
             <h2>訂單紀錄</h2>
           </div>
           <div class="account-panel order-list-panel">
-            @if (orders.length) {
+            @if (orderHistory.length) {
               <div class="order-table-wrap">
                 <table class="order-table">
                   <thead>
@@ -124,7 +124,7 @@ import { orderStatusName } from './order-status';
                     </tr>
                   </thead>
                   <tbody>
-                    @for (order of orders; track order.id) {
+                    @for (order of orderHistory; track order.id) {
                       <tr>
                         <td>
                           <a class="order-number" [routerLink]="['/account/orders', order.id]">{{
@@ -135,8 +135,8 @@ import { orderStatusName } from './order-status';
                         <td>
                           <span
                             class="order-status"
-                            [class.is-cancelled]="order.status === 'CANCELLED'"
-                            >{{ statusName(order.status) }}</span
+                            [class.is-cancelled]="order.stat === 'ZZ'"
+                            >{{ statusName(order.stat) }}</span
                           >
                         </td>
                         <td>{{ order.total | currency: 'TWD' : 'NT$' }}</td>
@@ -153,7 +153,7 @@ import { orderStatusName } from './order-status';
                 </table>
               </div>
             } @else {
-              <div class="empty-state empty-state--small"><p>尚無訂單資料。</p></div>
+              <div class="empty-state empty-state--small"><p>尚無訂單紀錄。</p></div>
             }
           </div>
         } @else if (section === 'profile') {
@@ -213,6 +213,7 @@ export class AccountPageComponent implements OnInit {
 
   readonly section = (this.route.snapshot.data['section'] ?? 'overview') as string;
 
+  // 2026-11-27：列表及進行中訂單包含 20 核對中。
   readonly statusName = orderStatusName;
 
   member: MemberProfile | null = null;
@@ -226,11 +227,16 @@ export class AccountPageComponent implements OnInit {
   }
 
   get activeOrderCount(): number {
-    return this.orders.filter((order) => !['COMPLETED', 'CANCELLED'].includes(order.status)).length;
+    return this.recentPendingOrders.length;
   }
 
+  // 2026-11-27：待付款至已出貨皆為進行中，已完成及已取消的訂單保留於訂單紀錄。
   get recentPendingOrders(): OrderSummary[] {
-    return this.orders.filter((order) => order.status === 'PENDING').slice(0, 3);
+    return this.orders.filter((order) => order.stat === '10' || order.stat === '20' || order.stat === 'DD' || order.stat === '30');
+  }
+
+  get orderHistory(): OrderSummary[] {
+    return this.orders.filter((order) => order.stat !== '10' && order.stat !== '20' && order.stat !== 'DD' && order.stat !== '30');
   }
 
   get memberInitial(): string {

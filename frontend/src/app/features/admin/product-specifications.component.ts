@@ -10,7 +10,7 @@ export interface InventoryDraft {
   options: SaleOptionDraft[];
 }
 
-interface SpecField { key: string; label: string; unit?: string; type?: 'select'; options?: string[]; min?: number; max?: number; step?: number; }
+interface SpecField { key: string; label: string; unit?: string; type?: 'select' | 'text'; options?: string[]; min?: number; max?: number; step?: number; }
 
 @Component({
   selector: 'app-product-specifications', standalone: true, imports: [FormsModule],
@@ -29,6 +29,8 @@ interface SpecField { key: string; label: string; unit?: string; type?: 'select'
                 <label><span>{{ field.label }}@if(field.unit){ ({{ field.unit }})}</span>
                   @if (field.type === 'select') {
                     <select [(ngModel)]="row.attributes[field.key]" (ngModelChange)="changed()"><option [ngValue]="null">不設定</option>@for(option of field.options;track option){<option [value]="option">{{ option }}</option>}</select>
+                  } @else if (field.type === 'text') {
+                    <input type="text" placeholder="例：1000型" maxlength="100" [ngModel]="row.attributes[field.key]" (ngModelChange)="row.attributes[field.key] = $event || null; changed()" />
                   } @else {
                     <input type="number" [placeholder]="exampleFor(field.unit)" [min]="field.min ?? 0" [max]="field.max ?? null" [step]="field.step ?? 'any'" [(ngModel)]="row.attributes[field.key]" (ngModelChange)="changed()" />
                   }
@@ -81,8 +83,10 @@ export class ProductSpecificationsComponent {
     {key:'size',label:'尺寸',type:'select',options:['S','M','L','XL','XXL']},
     {key:'cc',label:'容量',unit:'cc'},
     {key:'watt',label:'功率',unit:'W'}, {key:'litre',label:'容量',unit:'L'},
-    {key:'foot',label:'尺寸',unit:'尺'}, {key:'singleHole',label:'單孔型號',unit:'型'},
-    {key:'doubleHole',label:'雙孔型號',unit:'型'},
+    {key:'foot',label:'尺寸',unit:'尺'},
+    // 原先單孔、雙孔分欄，顧客容易被「不適用」誤導；保留舊欄位以供既有商品編輯。
+    // {key:'singleHole',label:'單孔型號',unit:'型'}, {key:'doubleHole',label:'雙孔型號',unit:'型'},
+    {key:'model',label:'型號',type:'text'},
   ];
   readonly feed: SpecField[] = [
     {key:'pellet',label:'顆粒類型 (包)',type:'select',options:['大顆粒','小顆粒']},
@@ -92,7 +96,7 @@ export class ProductSpecificationsComponent {
     ]),
     {key:'ml',label:'容量',unit:'ml'}, {key:'g',label:'重量',unit:'g'}, {key:'kg',label:'重量',unit:'kg'},
   ];
-  get fields(): SpecField[] { return this.category === 'FISI' ? this.fish : this.category === 'AQUI' ? this.equipment : this.category === 'FEEI' ? this.feed : []; }
+  get fields(): SpecField[] { return this.category === 'FISI' ? this.fish : this.category === 'AQUI' ? [...this.equipment, ...(this.rows.some(r => r.attributes['singleHole'] != null || r.attributes['doubleHole'] != null) ? [{key:'singleHole',label:'舊單孔型號',unit:'型'}, {key:'doubleHole',label:'舊雙孔型號',unit:'型'}] : [])] : this.category === 'FEEI' ? this.feed : []; }
   exampleFor(unit?: string): string {
     const examples: Record<string, string> = { cm: '5', cc: '500', W: '10', L: '2', 尺: '2', 型: '1', g: '100', ml: '500', kg: '1' };
     return `例：${unit ? (examples[unit] ?? '1') : '1'}`;

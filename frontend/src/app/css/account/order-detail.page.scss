@@ -153,3 +153,69 @@
     padding: 18px;
   }
 }
+
+/* 2026-11-27：轉帳資料輸入區樣式。 */
+.transfer-panel form { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 20px 0; }
+.transfer-panel input { width: 100px; min-height: 44px; padding: 8px 12px; border: 1px solid #b9ccc5; border-radius: 8px; font-size: 18px; }
+.transfer-panel p { line-height: 1.8; }
+
+/* 2026-11-27：銀行轉帳 QR Code 響應式顯示。 */
+.transfer-qr { display: block; width: min(100%, 320px); height: auto; }
+
+/* 2026-11-27：加寬訂單頁並並排付款資訊，減少桌機上下捲動。 */
+.order-detail-page .narrow-page { width: min(100% - 48px, 1360px); max-width: 1360px; }
+.detail-card { margin-bottom: 0; }
+.transfer-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(200px, 260px); gap: 24px; align-items: start; }
+.transfer-info { display: grid; gap: 10px; min-width: 0; }
+.transfer-info .transfer-amount { font-size: 15px; }
+.transfer-info form { margin: 4px 0; }
+.transfer-image { display: flex; justify-content: center; }
+.transfer-qr { width: 100%; max-width: 260px; }
+@media (max-width: 900px) { .transfer-layout { grid-template-columns: 1fr; } .transfer-image { grid-row: 1; justify-content: flex-start; } .transfer-qr { max-width: 220px; } }
+@media (max-width: 700px) { .order-detail-page .narrow-page { width: calc(100% - 28px); } }
+
+/* 2026-11-27：縮短訂單詳情頁導覽列下方的留白。 */
+.order-detail-page { padding-top: 20px; }
+
+/* 2026-11-27：顯示後四碼格式及輸入錯誤提示。 */
+.transfer-input-hint { flex-basis: 100%; font-size: 12px; color: #60766e; }
+.transfer-input-hint.is-error { color: #b3382b; }
+.transfer-panel button:disabled { opacity: .5; cursor: not-allowed; }
+
+/* 2026-11-27：比照商品上架警告，使用網站內的付款確認視窗。 */
+.payment-dialog { width: min(520px, calc(100vw - 32px)); max-height: 80vh; overflow: auto; padding: 26px; border: 1px solid #dbe6df; border-radius: 16px; color: #18211d; }
+.payment-dialog::backdrop { background: #17231eb3; }
+.payment-dialog h2 { margin: 0 0 12px; font-size: 20px; }
+.payment-dialog p { margin: 0 0 10px; line-height: 1.7; font-size: 14px; }
+.payment-dialog__summary { margin: 16px 0; padding: 14px; background: #f3f7f4; border-radius: 10px; }
+.payment-dialog__summary p:last-child { margin-bottom: 0; }
+.payment-dialog__warning { color: #9b4d35; }
+.payment-dialog__error { color: #b3382b; }
+.payment-dialog__actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+
+/* 2026-11-27：統一轉帳區文字大小及上下間距。 */
+.transfer-info { gap: 12px; font-size: 14px; line-height: 1.7; }
+.transfer-panel .transfer-info p, .transfer-info .transfer-amount, .transfer-info label, .transfer-info input, .transfer-info button, .transfer-info .transfer-input-hint { font-size: 14px; line-height: 1.7; }
+.transfer-info form { gap: 10px; margin: 0; }
+.transfer-info input { width: 120px; }
+.transfer-info .transfer-instructions { color: #60766e; }
+
+/* 2026-11-27：驗證提示換行時，提交按鈕保持在輸入框右側。 */
+.transfer-info .transfer-input-hint { order: 1; }
+.transfer-info .transfer-instructions strong { color: #d63b28; font-weight: 700; }
+
+/* 2026-11-27：放大右側轉帳 QR Code，方便掃描。 */
+.transfer-layout { grid-template-columns: minmax(0, 1fr) minmax(200px, 320px); }
+.transfer-qr { max-width: 320px; }
+@media (max-width: 900px) { .transfer-layout { grid-template-columns: 1fr; } .transfer-qr { max-width: 280px; } }
+
+/* 2026-11-27：QR Code 與轉帳標題頂部對齊。 */
+.transfer-info h2 { margin: 0 0 6px; }
+
+/* 2026-11-27：收件資料標籤與內容整齊對齊。 */
+.recipient-details { display: grid; gap: 8px; margin: 0; font-size: 13px; line-height: 1.6; }
+.recipient-details div { display: grid; grid-template-columns: max-content minmax(0, 1fr); align-items: start; }
+.recipient-details dd { margin: 0; overflow-wrap: anywhere; }
+
+/* 2026-11-27：付款與取消對話框使用模糊遮罩。 */
+.payment-dialog::backdrop { backdrop-filter: blur(4px); }

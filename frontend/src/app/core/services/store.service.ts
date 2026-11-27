@@ -5,11 +5,14 @@ import { environment } from '../../../environments/environment';
 import { CATALOG_FILTER_GROUPS, CATEGORIES } from '../data/mock-store.data';
 import { CartItem, Product } from '../models/store.models';
 import { AuthService } from './auth.service';
+import { InventoryUpdatesService } from './inventory-updates.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Injectable({ providedIn: 'root' })
 export class StoreService {
   private readonly authService = inject(AuthService);
   private readonly http = inject(HttpClient);
+  private readonly inventoryUpdates = inject(InventoryUpdatesService);
   private loadGeneration = 0;
 
   readonly categories = computed(() => CATEGORIES.map(category => ({ ...category, itemCount: this.products().filter(p => p.groupSlug === category.slug).length })));
@@ -24,6 +27,8 @@ export class StoreService {
 
   readonly featuredProducts = computed(() => this.products().filter((item) => item.featured));
   readonly newProducts = computed(() => this.products().filter((item) => item.isNew));
+  // 2026-11-27：購物車數量不可超過最新可售庫存。
+  readonly cartStockValid = computed(() => this.cart().every(item => item.quantity <= item.product.stock));
   readonly cartCount = computed(() => this.cart().reduce((sum, item) => sum + item.quantity, 0));
   readonly cartSubtotal = computed(() =>
     this.cart().reduce((sum, item) => sum + item.product.price * item.quantity, 0),
@@ -31,17 +36,26 @@ export class StoreService {
   readonly shippingFee = computed(() => (this.cartSubtotal() >= 1200 ? 0 : 120));
   readonly cartTotal = computed(() => this.cartSubtotal() + this.shippingFee());
 
-  constructor() { effect(() => { if (!this.isMember()) this.clearCart(); void this.loadCatalog(); }); }
+  // 2026-11-27：庫存變更時重讀商品，並同步購物車中規格的庫存數。
+  constructor() {
+    effect(() => { if (!this.isMember()) this.clearCart(); void this.loadCatalog(); });
+    this.inventoryUpdates.changes.pipe(takeUntilDestroyed()).subscribe(() => void this.loadCatalog(true));
+  }
 
-  async loadCatalog(): Promise<void> {
+  async loadCatalog(background = false): Promise<void> {
     const generation = ++this.loadGeneration;
     try {
       const items = await firstValueFrom(this.http.get<Array<{ id: number; productNo: string; productName: string; description: string; proNo: string; categoryNo: string; categoryName: string; image: string | null; images: string[]; videoUrl: string | null; variationName: string | null; totalStock: number; inventoryUnit: string; skus: NonNullable<Product['skus']> }>>(`${environment.apiBaseUrl}/catalog/products`));
       if (generation !== this.loadGeneration) return;
       const groupMap: Record<string, string> = { FISI: 'fish', AQUI: 'equipment', FEEI: 'food' };
       this.products.set(items.map(p => { const group = groupMap[p.proNo] ?? ''; const index = Number(p.categoryNo.slice(4)); const option = CATALOG_FILTER_GROUPS.find(g => g.slug === group)?.options[index]; const prices = p.skus.flatMap(s => s.price === null ? [] : [s.price]); return { id: p.id, slug: String(p.id), name: p.productName, categorySlug: group, groupSlug: group, subcategorySlug: option?.slug ?? p.categoryNo, price: prices.length ? Math.min(...prices) : 0, emoji: '🐠', gradient: '#edf5f1', description: p.description, careLevel: '入門', size: '', temperature: '', stock: p.totalStock, inventoryUnit: p.inventoryUnit, image: p.image, images: p.images, videoUrl: p.videoUrl, variationName: p.variationName, skus: p.skus } satisfies Product; }));
+      this.cart.update(items => items.map(item => {
+        const product = this.products().find(p => p.id === item.product.id);
+        const sku = product?.skus?.find(s => s.id === item.product.skuId);
+        return { ...item, product: { ...item.product, stock: sku?.stockQty ?? 0 } };
+      }));
       this.catalogError.set('');
-    } catch { if (generation === this.loadGeneration) { this.products.set([]); this.catalogError.set('商品資料無法載入，請稍後再試。'); } }
+    } catch { if (generation === this.loadGeneration) { if (!background) this.products.set([]); this.catalogError.set('商品資料無法載入，請稍後再試。'); } }
   }
 
   productBySlug(slug: string | null): Product | undefined {
@@ -69,7 +83,7 @@ export class StoreService {
   updateQuantity(productId: number, quantity: number): void {
     if (quantity <= 0) return this.removeFromCart(productId);
     this.cart.update((items) =>
-      items.map((item) => (item.product.skuId === productId ? { ...item, quantity: Math.min(quantity, item.product.stock) } : item)),
+      items.map((item) => (item.product.skuId === productId ? { ...item, quantity: quantity > item.quantity ? Math.min(quantity, Math.max(item.quantity, item.product.stock)) : quantity } : item)),
     );
   }
 

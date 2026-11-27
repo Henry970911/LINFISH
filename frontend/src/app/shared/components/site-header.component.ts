@@ -24,9 +24,9 @@ import { StoreService } from '../../core/services/store.service';
         >
           ☰
         </button>
-        <a class="brand" routerLink="/" aria-label="LINFISH 首頁">
+        <a class="brand" routerLink="/" aria-label="魚軒水族館 首頁">
           <img class="brand__mark" src="images/linfish-logo.jpg" alt="" width="42" height="42">
-          <span><b>LINFISH</b><small>讓水族生活更簡單</small></span>
+          <span><b>魚軒水族館</b><small>讓水族生活更簡單</small></span>
         </a>
 
         <form class="search" (ngSubmit)="search()">

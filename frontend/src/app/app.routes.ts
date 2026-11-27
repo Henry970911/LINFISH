@@ -11,18 +11,18 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        title: 'LINFISH｜讓水族生活更簡單',
+        title: '魚軒水族館｜讓水族生活更簡單',
         loadComponent: () => import('./features/home/home.page').then((m) => m.HomePageComponent),
       },
       {
         path: 'catalog',
-        title: '商品列表｜LINFISH',
+        title: '商品列表｜魚軒水族館',
         loadComponent: () =>
           import('./features/catalog/catalog.page').then((m) => m.CatalogPageComponent),
       },
       {
         path: 'product/:slug',
-        title: '商品資訊｜LINFISH',
+        title: '商品資訊｜魚軒水族館',
         loadComponent: () =>
           import('./features/catalog/product-detail.page').then(
             (m) => m.ProductDetailPageComponent,
@@ -30,26 +30,26 @@ export const routes: Routes = [
       },
       {
         path: 'cart',
-        title: '購物車｜LINFISH',
+        title: '購物車｜魚軒水族館',
         loadComponent: () => import('./features/cart/cart.page').then((m) => m.CartPageComponent),
       },
       {
         path: 'checkout',
-        title: '結帳｜LINFISH',
+        title: '結帳｜魚軒水族館',
         canActivate: [authGuard],
         loadComponent: () =>
           import('./features/cart/checkout.page').then((m) => m.CheckoutPageComponent),
       },
       {
         path: 'order-complete',
-        title: '訂單完成｜LINFISH',
+        title: '訂單完成｜魚軒水族館',
         canActivate: [authGuard],
         loadComponent: () =>
           import('./features/cart/order-complete.page').then((m) => m.OrderCompletePageComponent),
       },
       {
         path: 'account',
-        title: '會員中心｜LINFISH',
+        title: '會員中心｜魚軒水族館',
         canActivate: [authGuard],
         data: { section: 'overview' },
         loadComponent: () =>
@@ -57,7 +57,7 @@ export const routes: Routes = [
       },
       {
         path: 'account/orders',
-        title: '訂單紀錄｜LINFISH',
+        title: '訂單紀錄｜魚軒水族館',
         canActivate: [authGuard],
         data: { section: 'orders' },
         loadComponent: () =>
@@ -65,14 +65,14 @@ export const routes: Routes = [
       },
       {
         path: 'account/orders/:id',
-        title: '訂單詳情｜LINFISH',
+        title: '訂單詳情｜魚軒水族館',
         canActivate: [authGuard],
         loadComponent: () =>
           import('./features/account/order-detail.page').then((m) => m.OrderDetailPageComponent),
       },
       {
         path: 'account/profile',
-        title: '個人資料｜LINFISH',
+        title: '個人資料｜魚軒水族館',
         canActivate: [authGuard],
         data: { section: 'profile' },
         loadComponent: () =>
@@ -80,7 +80,7 @@ export const routes: Routes = [
       },
       {
         path: 'account/favorites',
-        title: '收藏清單｜LINFISH',
+        title: '收藏清單｜魚軒水族館',
         canActivate: [authGuard],
         data: { section: 'favorites' },
         loadComponent: () =>
@@ -88,28 +88,28 @@ export const routes: Routes = [
       },
       {
         path: 'guides',
-        title: '水族小教室｜LINFISH',
+        title: '水族小教室｜魚軒水族館',
         loadComponent: () =>
           import('./features/content/guides.page').then((m) => m.GuidesPageComponent),
       },
       {
         path: 'guides/:slug',
-        title: '水族文章｜LINFISH',
+        title: '水族文章｜魚軒水族館',
         loadComponent: () =>
           import('./features/content/guide-detail.page').then((m) => m.GuideDetailPageComponent),
       },
       {
         path: 'contact',
-        title: '聯絡我們｜LINFISH',
+        title: '聯絡我們｜魚軒水族館',
         loadComponent: () =>
           import('./features/content/contact.page').then((m) => m.ContactPageComponent),
       },
       {
         path: 'info/about',
-        title: '關於我們｜LINFISH',
+        title: '關於我們｜魚軒水族館',
         data: {
           kind: 'about',
-          eyebrow: 'ABOUT LINFISH',
+          eyebrow: '關於魚軒水族館',
           title: '把喜歡變成能長久照顧的日常',
           intro: '不只提供商品，也提供做出適合選擇所需要的資訊。',
           symbol: '∞',
@@ -119,7 +119,7 @@ export const routes: Routes = [
       },
       {
         path: 'info/shipping',
-        title: '付款與配送｜LINFISH',
+        title: '付款與配送｜魚軒水族館',
         data: {
           kind: 'shipping',
           eyebrow: 'SHOPPING GUIDE',
@@ -132,7 +132,7 @@ export const routes: Routes = [
       },
       {
         path: 'info/returns',
-        title: '到貨與售後｜LINFISH',
+        title: '到貨與售後｜魚軒水族館',
         data: {
           kind: 'returns',
           eyebrow: 'AFTER SALES',
@@ -145,7 +145,7 @@ export const routes: Routes = [
       },
       {
         path: 'info/vip',
-        title: '會員權益｜LINFISH',
+        title: '會員權益｜魚軒水族館',
         data: {
           kind: 'vip',
           eyebrow: 'MEMBERSHIP',
@@ -160,19 +160,19 @@ export const routes: Routes = [
   },
   {
     path: 'login',
-    title: '會員登入｜LINFISH',
+    title: '會員登入｜魚軒水族館',
     data: { mode: 'login' },
     loadComponent: () => import('./features/auth/auth.page').then((m) => m.AuthPageComponent),
   },
   {
     path: 'register',
-    title: '免費註冊｜LINFISH',
+    title: '免費註冊｜魚軒水族館',
     data: { mode: 'register' },
     loadComponent: () => import('./features/auth/auth.page').then((m) => m.AuthPageComponent),
   },
   {
     path: 'forgot-password',
-    title: '忘記密碼｜LINFISH',
+    title: '忘記密碼｜魚軒水族館',
     data: { mode: 'forgot' },
     loadComponent: () => import('./features/auth/auth.page').then((m) => m.AuthPageComponent),
   },
@@ -184,7 +184,7 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        title: '管理儀表板｜LINFISH',
+        title: '管理儀表板｜魚軒水族館',
         loadComponent: () =>
           import('./features/admin/admin-dashboard.page').then(
             (m) => m.AdminDashboardPageComponent,
@@ -192,7 +192,7 @@ export const routes: Routes = [
       },
       {
         path: 'products',
-        title: '商品管理｜LINFISH',
+        title: '商品管理｜魚軒水族館',
         data: {
           eyebrow: 'PRODUCT OPERATIONS',
           title: '商品管理',
@@ -204,7 +204,7 @@ export const routes: Routes = [
       },
       {
         path: 'members',
-        title: '會員管理｜LINFISH',
+        title: '會員管理｜魚軒水族館',
         data: {
           eyebrow: 'MEMBER OPERATIONS',
           title: '會員管理',
@@ -216,13 +216,13 @@ export const routes: Routes = [
       },
       {
         path: 'orders',
-        title: '訂單管理｜LINFISH',
+        title: '訂單管理｜魚軒水族館',
         loadComponent: () => import('./features/admin/admin-orders.page').then((m) => m.AdminOrdersPageComponent),
       },
-      { path:'settings', title:'稅別與物流設定｜LINFISH', loadComponent:()=>import('./features/admin/commerce-settings.page').then(m=>m.CommerceSettingsPageComponent) },
+      { path:'settings', title:'稅別與物流設定｜魚軒水族館', loadComponent:()=>import('./features/admin/commerce-settings.page').then(m=>m.CommerceSettingsPageComponent) },
       {
         path: 'finance',
-        title: '財務管理｜LINFISH',
+        title: '財務管理｜魚軒水族館',
         data: {
           eyebrow: 'FINANCE OPERATIONS',
           title: '財務管理',
@@ -234,7 +234,7 @@ export const routes: Routes = [
       },
       {
         path: 'warehouse',
-        title: '倉儲管理｜LINFISH',
+        title: '倉儲管理｜魚軒水族館',
         data: {
           eyebrow: 'WAREHOUSE OPERATIONS',
           title: '倉儲管理',
@@ -248,7 +248,7 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    title: '找不到頁面｜LINFISH',
+    title: '找不到頁面｜魚軒水族館',
     loadComponent: () =>
       import('./features/system/not-found.page').then((m) => m.NotFoundPageComponent),
   },
